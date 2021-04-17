@@ -1,0 +1,9 @@
+{
+  "name": "toptalk",
+  "version": "0.0.1",
+  "description": "toptalk app for hackathon",
+  "dependencies": {
+    "express": "^4.17.1",
+    "socket.io": "^4.0.1"
+  }
+}
