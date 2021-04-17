@@ -6,24 +6,33 @@ const http = require('http');
 const app = express();
 const server = http.createServer(app);
 const io = socketio(server);
-const run = require('./api/api');
+const run = require('./api/dataprocess');
+const INIT = 'init';
+// let objects = run();
 
-let objects = run();
-console.log(objects);
-
-app.use(express.static(path.join(__dirname, 'static')));
+let objects = require('./results');
+app.set('view engine', 'ejs');
+app.use(express.static(path.join(__dirname, '/public')));
 
 app.get('/', (req, res) => {
-	res.redirect('index.html');
+	res.render('index');
 });
 
 io.on('connection', (socket) => {
+	let topicInFocus = null;
 	//TODO handle user connects
 	socket.on('disconnect', () => {
 		//TODO handle user disconnects
 	});
 
-	socket.emit('init', middleware());
+	socket.on('roomSelect', (roomId) => {
+		if (topicInFocus) {
+			//unsubscribe UUID
+		} else {
+			socket.join(roomId);
+		}
+	});
+	socket.emit(INIT, objects);
 });
 
 server.listen(process.env.PORT, () => {
