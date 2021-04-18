@@ -2,6 +2,9 @@
   "name": "toptalk",
   "version": "0.0.1",
   "description": "toptalk app for hackathon",
+  "scripts": {
+    "start": "node index.js"
+  },
   "dependencies": {
     "date-and-time": "^1.0.0",
     "dotenv": "^8.2.0",
