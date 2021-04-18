@@ -20,25 +20,6 @@ class Article {
 		this.content = sourceObject.content;
 		this.weight = sourceObject.wieght;
 	}
-
-	toJSON() {
-		return {
-			id : this.id,
-			htmlBody : this.htmlBody,
-			source : JSON.stringify({
-				id : this.sourceId,
-				name : this.sourceName
-			}),
-			author : this.author,
-			title : this.title,
-			description : this.description,
-			url : this.url,
-			urlToImage : this.urlToImage,
-			publishedAt : this.publishedAt,
-			content : this.content,
-			wieght : this.weight
-		}
-	}
 }
 
 class Topic {
@@ -48,52 +29,25 @@ class Topic {
 		this.relatedArticles = []
 		JSON.parse(sourceObject.relatedArticles).forEach(relatedArticle => this.relatedArticles.push(new Article(relatedArticle)))
 		this.comments = new Map();
-	}
-
-	toJSON() {
-		return {
-			id : this.id,
-			source : JSON.stringify(this.sourceArticle),
-			relatedArticles : JSON.stringify(this.relatedArticles),
-			comments : JSON.stringify(Comment.mapToJson(this.comments))
+		for (let k of Object.keys(sourceObject.comments)) {
+		  this.comments.set(k, new Comment(sourceObject.comments[k]));
 		}
 	}
 }
 
 class Comment {
-	constructor(authorName, content, articleId, replyingToId) {
-		this.authorName = authorName;
-		this.content = content;
-		this.articleId = articleId;
-		this.replyingToId = replyingToId;
-		this.responses = new Map();
-		this.score = 0;
-	}
-
-	/**
-	 * 
-	 * @param {Map[string, Comment]} messageMap 
-	 * @returns This map as json encoded string
-	 */
-	static mapToJson(messageMap) {
-		let ret = Object.create(null);
-		for (const [k, v] of messageMap) {
-			ret[k] = v;
+	constructor(sourceObject) {
+		this.authorName = sourceObject.authorName;
+		this.content = sourceObject.content;
+		this.articleId = sourceObject.articleId;
+		this.replyingToId = sourceObject.replyingToId;
+		if(sourceObject.responseIds) {
+			this.responseIds = JSON.parse()
+		} else {
+			this.responseIds 
 		}
-		return ret;
+		this.score = sourceObject.score;
 	}
-
-	toJSON() {
-		return {
-			authorName: this.authorName,
-			content: this.content,
-			articleId: this.articleId,
-			replyingToId: this.replyingToId,
-			score: this.score,
-			responses: JSON.stringify(Comment.mapToJson(this.responses))
-		}
-	}
-
 }
 
 

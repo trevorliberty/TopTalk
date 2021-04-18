@@ -31,20 +31,20 @@ class Article {
 
 	toJSON() {
 		return {
-			id : this.id,
-			htmlBody : this.htmlBody,
-			source : JSON.stringify({
-				id : this.sourceId,
-				name : this.sourceName
+			id: this.id,
+			htmlBody: this.htmlBody,
+			source: JSON.stringify({
+				id: this.sourceId,
+				name: this.sourceName
 			}),
-			author : this.author,
-			title : this.title,
-			description : this.description,
-			url : this.url,
-			urlToImage : this.urlToImage,
-			publishedAt : this.publishedAt,
-			content : this.content,
-			wieght : this.weight
+			author: this.author,
+			title: this.title,
+			description: this.description,
+			url: this.url,
+			urlToImage: this.urlToImage,
+			publishedAt: this.publishedAt,
+			content: this.content,
+			wieght: this.weight
 		}
 	}
 }
@@ -60,10 +60,10 @@ class Topic {
 
 	toJSON() {
 		return {
-			id : this.id,
-			source : JSON.stringify(this.sourceArticle),
-			relatedArticles : JSON.stringify(this.relatedArticles),
-			comments : JSON.stringify(Comment.mapToJson(this.comments))
+			id: this.id,
+			source: JSON.stringify(this.sourceArticle),
+			relatedArticles: JSON.stringify(this.relatedArticles),
+			comments: JSON.stringify(Comment.mapToJson(this.comments))
 		}
 	}
 }
@@ -74,7 +74,7 @@ class Comment {
 		this.content = content;
 		this.articleId = articleId;
 		this.replyingToId = replyingToId;
-		this.responses = new Map();
+		this.responseIds = [];
 		this.score = 0;
 	}
 
@@ -97,8 +97,8 @@ class Comment {
 			content: this.content,
 			articleId: this.articleId,
 			replyingToId: this.replyingToId,
-			score: this.score,
-			responses: JSON.stringify(Comment.mapToJson(this.responses))
+			responseIds: JSON.stringify(this.responseIds),
+			score: this.score
 		}
 	}
 
@@ -202,13 +202,13 @@ io.on('connection', (socket) => {
 
 	// User makes a comment
 	socket.on(CLIENT_EVENT_COMMENT, (content, articleId, replyingToId) => {
-		let newCommentId = uuid.v4();
-		topicInFocusComments = topics.get(topicInFocusId).comments
+		const newCommentId = uuid.v4();
+		const topicInFocusComments = topics.get(topicInFocusId).comments
+		const commentToAdd = new Comment(userName, content, articleId, replyingToId)
 
-		if (replyingToId == null) {
-			topicInFocusComments.set(newCommentId, new Comment(userName, content, articleId, replyingToId))
-		} else {
-			topicInFocusComments.get(replyingToId).responses.set(newCommentId, new Comment(userName, content, articleId, replyingToId))
+		topicInFocusComments.set(newCommentId, commentToAdd)
+		if (replyingToId != null) {
+			topicInFocusComments.get(replyingToId).responseIds.set(newCommentId, commentToAdd)
 		}
 		socket.to(topicInFocusId).emit(SERVER_EVENT_COMMENT, senderId, newCommentId, userName, content, articleId, replyingToId);
 	});
