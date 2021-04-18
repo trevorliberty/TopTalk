@@ -29,6 +29,8 @@
 			crossorigin="anonymous"
 		></script>
 		<script src="https://github.com/mde/ejs/releases/download/v3.0.2/ejs.min.js"></script>
+		<script src="https://cdn.socket.io/4.0.1/socket.io.min.js" integrity="sha384-LzhRnpGmQP+lOvWruF/lgkcqD+WDVt9fU3H4BWmwP5u5LTmkUGafMcpZKNObVMLU" crossorigin="anonymous"></script>
+
 	</head>
 
 	<body>
@@ -73,25 +75,7 @@
 			crossorigin="anonymous"
 		></script>
 
-		<script type="text/javascript">
-			function htmlDecode(value) {
-				return $('<textarea/>').html(value).text();
-			}
+		<script src="index.js"></script>
 
-			$(document).ready(function () {
-				$('#sidebarCollapse').on('click', function () {
-					$('#sidebar').toggleClass('active');
-					setTimeout(() => {
-						$('#sidebarCollapse_').css('display', 'block');
-					}, 130);
-				});
-				let str = `<%= include('topicCard', {article: articles[0]}); %>`;
-				//$('body').html(htmlDecode(str))
-				$('#sidebarCollapse_').on('click', function () {
-					$('#sidebar').toggleClass('active');
-					$('#sidebarCollapse_').css('display', 'none');
-				});
-			});
-		</script>
 	</body>
 </html>

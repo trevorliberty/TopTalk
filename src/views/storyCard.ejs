@@ -9,7 +9,7 @@
 			/>
 		<% } else { %>
 			<img
-				src="<%=article.urlToImage%>"
+				src="img/newspaper.png"
 				class="card-img-top"
 				style="width: 23rem; height: 15rem; padding: 10px; border-radius: 25px"
 			/>
@@ -19,17 +19,19 @@
 		<div class="card-body">
 			<h5 class="card-title"><%=article.title%></h5>
 			<p class="card-text">
-				Some quick example text to build on the card title and make up the bulk
-				of the card's content.
+				<%=article.source.name%>
 			</p>
 			<!-- <a href="#" class="btn btn-primary">Go somewhere</a> -->
+			<p class="card-text" style="color:black; padding-bottom:0">
+				<%=article.content.substring(0, 80) %>...
+			</p>
 		</div>
-		<div id="<%=article.id%>" class="ml-auto" style="padding: 10px">
+		<div id="show_<%=article.id%>" class="ml-auto" style="padding: 10px">
 			<i class="fas fa-chevron-down fa-2x" style="color: #7386d5"> </i>
 		</div>
 	</div>
 
-	<div class="container-fluid" style="display: none; position: absolute">
+	<div id="article_<%=article.id%>"class="container-fluid" style="width: 70vw;display: none; position: absolute">
 		<p>
 			Global deaths from COVID-19 has surpassed 3 million, according to the
 			<a href="https://origin-coronavirus.jhu.edu/map.html">latest data</a> from

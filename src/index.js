@@ -148,7 +148,7 @@ app.use(express.static(path.join(__dirname, '/public')));
  * Routes
  */
 app.get('/', (req, res) => {
-	res.render('index', { articles: objects });
+	res.render('index', { articles: topicArticleData});
 });
 
 
