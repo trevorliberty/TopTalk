@@ -74,7 +74,7 @@ class Comment {
 		this.content = content;
 		this.articleId = articleId;
 		this.replyingToId = replyingToId;
-		this.responseIds = [];
+		this.responses = new Map();
 		this.score = 0;
 	}
 
@@ -97,7 +97,7 @@ class Comment {
 			content: this.content,
 			articleId: this.articleId,
 			replyingToId: this.replyingToId,
-			responseIds: JSON.stringify(this.responseIds),
+			responses: Comment.mapToJson(this.responses),
 			score: this.score
 		}
 	}
@@ -119,7 +119,7 @@ const io = socketio(server);
 const topicArticleData = require('./results');
 const users = new Map(); // Map[userId, userName]
 const topics = new Map() // Map[topicId, Topic]
-topicArticleData.forEach(topic => topics.set(topic.id, new Topic(topic)))
+topicArticleData.forEach(topic => topics.set(String(topic.id), new Topic(topic)))
 
 // Status constants
 const STATUS_REJECTED = 'STATUS_REJECTED';
@@ -202,14 +202,14 @@ io.on('connection', (socket) => {
 	});
 
 	// User makes a comment
-	socket.on(CLIENT_EVENT_COMMENT, (content, articleId, replyingToId) => {
+	socket.on(CLIENT_EVENT_COMMENT, (content, commentId, articleId, replyingToId) => {
 		const newCommentId = uuid.v4();
 		const topicInFocusComments = topics.get(topicInFocusId).comments
 		const commentToAdd = new Comment(userName, content, articleId, replyingToId)
 
 		topicInFocusComments.set(newCommentId, commentToAdd)
 		if (replyingToId != null) {
-			topicInFocusComments.get(replyingToId).responseIds.set(newCommentId, commentToAdd)
+			topicInFocusComments.get(replyingToId).responses.set(newCommentId, commentToAdd)
 		}
 		socket.to(topicInFocusId).emit(SERVER_EVENT_COMMENT, senderId, newCommentId, userName, content, articleId, replyingToId);
 	});

@@ -32,15 +32,15 @@ class Topic {
 		);
 		this.comments = new Map();
 		for (let k of Object.keys(sourceObject.comments)) {
-		  this.comments.set(k, new Comment(sourceObject.comments[k]));
+			this.comments.set(k, new Comment(sourceObject.comments[k]));
 		}
 	}
 	toJSON() {
 		return {
 			id: this.id,
-			source: JSON.stringify(this.sourceArticle),
-			relatedArticles: JSON.parse(JSON.stringify(this.relatedArticles)),
-			comments: JSON.stringify(Comment.mapToJson(this.comments))
+			source: JSON.parse(this.sourceArticle),
+			relatedArticles: JSON.stringify(this.relatedArticles),
+			comments: Comment.mapToJson(this.comments)
 		}
 	}
 }
@@ -51,10 +51,11 @@ class Comment {
 		this.content = sourceObject.content;
 		this.articleId = sourceObject.articleId;
 		this.replyingToId = sourceObject.replyingToId;
-		if(sourceObject.responseIds) {
-			this.responseIds = JSON.parse()
-		} else {
-			this.responseIds 
+		this.responses = new Map();
+		if (sourceObject.responses) {
+			for (let k of Object.keys(sourceObject.responses)) {
+				this.responses.set(k, new Comment(sourceObject.responses[k]));
+			}
 		}
 		this.score = sourceObject.score;
 	}
@@ -66,24 +67,18 @@ class Comment {
 		}
 		return ret;
 	}
+
 	toJSON() {
 		return {
-			id: this.id,
-			htmlBody: this.htmlBody,
-			source: JSON.stringify({
-				id: this.sourceId,
-				name: this.sourceName
-			}),
-			author: this.author,
-			title: this.title,
-			description: this.description,
-			url: this.url,
-			urlToImage: this.urlToImage,
-			publishedAt: this.publishedAt,
+			authorName: this.authorName,
 			content: this.content,
-			wieght: this.weight
+			articleId: this.articleId,
+			replyingToId: this.replyingToId,
+			responses: Comment.mapToJson(this.responses),
+			score: this.score
 		}
 	}
+
 }
 
 // Status constants
@@ -112,7 +107,7 @@ function register(userName) {
 	});
 }
 
-function handleFocus(topic,upvotedCommentIds, downvotedCommentIds){ 
+function handleFocus(topic, upvotedCommentIds, downvotedCommentIds) {
 	console.log(topic.toJSON())
 }
 
@@ -121,12 +116,12 @@ function focusTopic(topicId) {
 		const topic = new Topic(JSON.parse(response.topic));
 		const upvotedCommentIds = JSON.parse(response.upvotedCommentIds);
 		const downvotedCommentIds = JSON.parse(response.downvotedCommentIds);
-		handleFocus(topic,upvotedCommentIds, downvotedCommentIds)
+		handleFocus(topic, upvotedCommentIds, downvotedCommentIds)
 	});
 }
 
-function message(content, articleId, replyingToId) {
-	socket.emit(CLIENT_EVENT_COMMENT, content, articleId, replyingToId);
+function message(content, commentId, articleId, replyingToId) {
+	socket.emit(CLIENT_EVENT_COMMENT, content, commentId, articleId, replyingToId);
 }
 
 function upvote(commentId) {
@@ -181,7 +176,7 @@ $(document).ready(() => {
 		$('#active_article').html(htmlDecode($(doc)[0].innerHTML))
 	});
 
-	$('.clickCatcher').click((e)=>{
+	$('.clickCatcher').click((e) => {
 		focusTopic(e.currentTarget.id)
 	})
 
