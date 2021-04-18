@@ -134,7 +134,12 @@ class Comment {
 // Exteranal vars
 const app = express();
 const server = http.createServer(app);
-const io = socketio(server);
+const io = socketio(server, {
+	cors: {
+		origin: '*',
+	}
+
+});
 
 // Our vars
 //  let topicArticleData = run();
@@ -239,7 +244,7 @@ io.on('connection', (socket) => {
 			topicInFocusAllComments.get(replyingToId).responses.set(newCommentId, commentToAdd)
 			topicInFocusAllComments.set(newCommentId, commentToAdd)
 		}
-		socket.to(topicInFocusId).emit(SERVER_EVENT_COMMENT, senderId, newCommentId, userName, content, articleId, replyingToId);
+		io.to(topicInFocusId).emit(SERVER_EVENT_COMMENT, socket.id, newCommentId, content, articleId, replyingToId);
 		callback({
 			id : newCommentId 
 		})

@@ -109,6 +109,65 @@ function register(userName) {
 	});
 }
 
+
+function handleServerSideComments(topic){
+	for(const [k,comment] of topic.comments.entries()){
+		console.log(comment);
+	}
+}
+
+function focusTopic(topicId) {
+	socket.emit(CLIENT_EVENT_GET_TOPIC, topicId, (response) => {
+		console.log(JSON.parse(response.topic));
+		const topic = new Topic(JSON.parse(response.topic));
+		console.log(topic)
+		handleServerSideComments(topic)
+		const upvotedCommentIds = JSON.parse(response.upvotedCommentIds);
+		const downvotedCommentIds = JSON.parse(response.downvotedCommentIds);
+		const topicHTML = response.topicHTML;
+		handleFocus(topicHTML, topic, upvotedCommentIds, downvotedCommentIds);
+	});
+}
+
+function message(content, articleId, replyingToId) {
+	socket.emit(
+		CLIENT_EVENT_COMMENT,
+		content,
+		articleId,
+		replyingToId,
+		(response) => {
+			console.log(response.id);
+			return response.id;
+		}
+	);
+}
+
+function upvote(commentId) {
+	socket.emit(CLIENT_EVENT_UPVOTE, commentId);
+}
+
+function downvote(commentId) {
+	socket.emit(CLIENT_EVENT_DOWNVOTE, commentId);
+}
+
+function getCommentHTML(senderId,messageId,content,articleId,replyingToId){
+	return `
+		<div class="card">
+		<div class="card-header">${senderId}</div>
+		<div class="card-body">
+			<blockquote class="blockquote mb-0">
+				<p>${content}</p>
+			</blockquote>
+		</div>
+		</div>
+	`;
+}
+function handleCommentEmission(senderId,messageId,content,articleId,replyingToId){
+	let html = getCommentHTML(senderId, messageId,content,articleId,replyingToId)
+	$(`#messageArea_${articleId}`).append(html);
+}
+
+
 function handleFocus(topicHTML, topic, upvotedCommentIds, downvotedCommentIds) {
 	// console.log(topic.toJSON())
 	$('#topicInFocus').html(topicHTML);
@@ -128,52 +187,33 @@ function handleFocus(topicHTML, topic, upvotedCommentIds, downvotedCommentIds) {
 	$('.commentPicker').keydown((e)=>{
 		if(e.keyCode === 13){
 			e.preventDefault();
-			console.log(e.currentTarget.id)
 			let id = e.currentTarget.id.replace('comment_', '');
-			let comment = e.currentTarget.id.value;
-			console.log(e.currentTarget.value);
+			let comment = e.currentTarget.value;
+			// console.log(e.currentTarget.value);
+			message(comment, id, null)
+			e.currentTarget.value = ''
 		}
 	})
-}
-
-function focusTopic(topicId) {
-	socket.emit(CLIENT_EVENT_GET_TOPIC, topicId, (response) => {
-		const topic = new Topic(JSON.parse(response.topic));
-		const upvotedCommentIds = JSON.parse(response.upvotedCommentIds);
-		const downvotedCommentIds = JSON.parse(response.downvotedCommentIds);
-		const topicHTML = response.topicHTML;
-		handleFocus(topicHTML, topic, upvotedCommentIds, downvotedCommentIds);
-	});
-}
-
-function message(content, articleId, replyingToId) {
-	socket.emit(
-		CLIENT_EVENT_COMMENT,
-		content,
-		articleId,
-		replyingToId,
-		(response) => {
-			return response.id;
-		}
-	);
-}
-
-function upvote(commentId) {
-	socket.emit(CLIENT_EVENT_UPVOTE, commentId);
-}
-
-function downvote(commentId) {
-	socket.emit(CLIENT_EVENT_DOWNVOTE, commentId);
 }
 $(document).ready(() => {
 	socket.on(
 		SERVER_EVENT_COMMENT,
 		(senderId, messageId, content, articleId, replyingToId) => {
+			console.log(senderId)
+			console.log(messageId);
+			console.log(content);
+			console.log(articleId);
 			if (replyingToId) {
+				console.log(`REPLYING TO ${replyingToId}`);
+				console.log(`CONTENT: ${content}`);
 				//TODO handle if response message
 			} else {
+				console.log(content);
 				//TODO handle original comment
 			}
+			handleCommentEmission(senderId,messageId,content,articleId,replyingToId)
+
+
 		},
 	);
 
