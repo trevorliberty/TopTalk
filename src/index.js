@@ -233,9 +233,10 @@ io.on('connection', (socket) => {
 		const commentToAdd = new Comment(userName, content, articleId, replyingToId)
 		topics.get(topicInFocusId).comments.set(newCommentId, commentToAdd)
 
+
 		 const now = new Date();
 			const time = date.format(now, 'h:mm:ss A');
-		io.to(topicInFocusId).emit(SERVER_EVENT_COMMENT, socket.id, newCommentId, content, articleId, replyingToId,time);
+		io.to(topicInFocusId).emit(SERVER_EVENT_COMMENT, socket.id, newCommentId, content, topicInFocusId, replyingToId,time);
 		callback({
 			id : newCommentId 
 		})
@@ -243,6 +244,7 @@ io.on('connection', (socket) => {
 
 	// User upvotes a comment
 	// Assumes client enforces user not bieng able to upvote their own comment
+
 	socket.on(CLIENT_EVENT_UPVOTE, (commentId) => {
 		const topicInFocus = topics.get(topicInFocusId)
 		if (!topicInFocus.upvotedCommentIds.has(commentId)) {
