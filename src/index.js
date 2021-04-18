@@ -15,8 +15,8 @@ const run = require('./api/dataprocess');
 class Article {
 	// constructor(sourceId, sourceName, authorName, title, description, url, urlToImage, content) {
 	constructor(sourceObject) {
-		this.id = "" //TODO sourceObject.id;
-		this.htmlBody = "" //TODO sourceObject.htmlBody
+		this.id = sourceObject.id;
+		this.htmlBody = sourceObject.htmlBody;
 		this.sourceId = sourceObject.source.id;
 		this.sourceName = sourceObject.source.name;
 		this.author = sourceObject.name;
@@ -119,7 +119,7 @@ const io = socketio(server);
 const topicArticleData = require('./results');
 const users = new Map(); // Map[userId, userName]
 const topics = new Map() // Map[topicId, Topic]
-// topicArticleData.forEach(topic => topics.set(topic.id, new Topic(topic)))
+topicArticleData.forEach(topic => topics.set(topic.id, new Topic(topic)))
 
 // Status constants
 const STATUS_REJECTED = 'STATUS_REJECTED';

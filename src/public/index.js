@@ -7,8 +7,8 @@ const socket = io();
 class Article {
 	// constructor(sourceId, sourceName, authorName, title, description, url, urlToImage, content) {
 	constructor(sourceObject) {
-		this.id = ''; //TODO sourceObject.id;
-		this.htmlBody = ''; //TODO sourceObject.htmlBody
+		this.id = sourceObject.id;
+		this.htmlBody = sourceObject.htmlBody;
 		this.sourceId = sourceObject.source.id;
 		this.sourceName = sourceObject.source.name;
 		this.author = sourceObject.name;
@@ -35,6 +35,14 @@ class Topic {
 		  this.comments.set(k, new Comment(sourceObject.comments[k]));
 		}
 	}
+	toJSON() {
+		return {
+			id: this.id,
+			source: JSON.stringify(this.sourceArticle),
+			relatedArticles: JSON.parse(JSON.stringify(this.relatedArticles)),
+			comments: JSON.stringify(Comment.mapToJson(this.comments))
+		}
+	}
 }
 
 class Comment {
@@ -49,6 +57,32 @@ class Comment {
 			this.responseIds 
 		}
 		this.score = sourceObject.score;
+	}
+
+	static mapToJson(messageMap) {
+		let ret = Object.create(null);
+		for (const [k, v] of messageMap) {
+			ret[k] = v;
+		}
+		return ret;
+	}
+	toJSON() {
+		return {
+			id: this.id,
+			htmlBody: this.htmlBody,
+			source: JSON.stringify({
+				id: this.sourceId,
+				name: this.sourceName
+			}),
+			author: this.author,
+			title: this.title,
+			description: this.description,
+			url: this.url,
+			urlToImage: this.urlToImage,
+			publishedAt: this.publishedAt,
+			content: this.content,
+			wieght: this.weight
+		}
 	}
 }
 
@@ -78,12 +112,16 @@ function register(userName) {
 	});
 }
 
+function handleFocus(topic,upvotedCommentIds, downvotedCommentIds){ 
+	console.log(topic.toJSON())
+}
+
 function focusTopic(topicId) {
 	socket.emit(CLIENT_EVENT_GET_TOPIC, topicId, (response) => {
 		const topic = new Topic(JSON.parse(response.topic));
 		const upvotedCommentIds = JSON.parse(response.upvotedCommentIds);
 		const downvotedCommentIds = JSON.parse(response.downvotedCommentIds);
-		//TODO
+		handleFocus(topic,upvotedCommentIds, downvotedCommentIds)
 	});
 }
 
@@ -144,7 +182,7 @@ $(document).ready(() => {
 	});
 
 	$('.clickCatcher').click((e)=>{
-		console.log(e.currentTarget.id)
+		focusTopic(e.currentTarget.id)
 	})
 
 });
