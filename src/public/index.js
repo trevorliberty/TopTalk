@@ -150,10 +150,9 @@ function getCommentHTML(
   replyingToId,
   time
 ) {
-  let ball = "sdf";
   return `
 		<div class="card mt-5">
-		<div class="card-header">${ball}</div>
+		<div class="card-header">Screenname</div>
 		<div class="card-body">
 			<blockquote class="blockquote mb-0">
 				<p>${content}</p>
