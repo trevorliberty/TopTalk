@@ -1,8 +1,9 @@
 const blackList = require('./blacklist');
 const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
+const fetch = require('node-fetch');
 
-const { getTopHeadlines, getQueryHeadlines } = require('./newsAPI');
+const { getTopHeadlines, getQueryHeadlines, getHTML } = require('./newsAPI');
 
 const getWords = (theString) => {
 	theString = theString.toLowerCase().trim();
@@ -69,6 +70,7 @@ module.exports = async () => {
 		setWordMapInfo(article.title, WordMap);
 		let title = titleFormatter(article.title);
 		let results = await getQueryHeadlines(title, article.url);
+		// console.log(results);
 		processWordMap(results, WordMap);
 
 		results = processWeights(results, WordMap);
@@ -79,21 +81,27 @@ module.exports = async () => {
 		});
 		results = determineSelections(results);
 
-		article['id']=uuidv4();
-		if(results){
-			results.unshift(article)
+		article['id'] = uuidv4();
+		if (results) {
+			results.unshift(article);
 		}
-		const obj = {
-			id: uuidv4(),
-			source: article,
-			relatedArticles: results,
-		};
-		return obj;
+
+		if (results) {
+			results = await postProcess(results);
+			return Promise.all(results).then((results) => {
+				console.log(results);
+				const obj = {
+					id: uuidv4(),
+					source: article,
+					relatedArticles: results,
+				};
+				return obj;
+			});
+		}
 	});
 	Promise.all(objects).then((values) => {
-		console.log(values);
 		values = values.filter((article) => {
-			return article.relatedArticles;
+			return article && article.relatedArticles;
 		});
 		values = values.sort((a, b) => {
 			if (a.relatedArticles.length < b.relatedArticles.length) return 1;
@@ -105,7 +113,26 @@ module.exports = async () => {
 				return relatedArticle;
 			});
 		});
+
+		// values.forEach((article) =>{
+		// 	article.relatedArticles.map(async(relatedArticle)=>{
+		// 		let html = await getHTML(relatedArticle.url)
+		// 		console.log(html);
+		// 		relatedArticle['htmlBody']=html;
+		// 		return relatedArticle
+		// 	})
+
+		// })
+
 		fs.writeFile('results.json', JSON.stringify(values, null, 4), (e) => {});
 		return values;
+	});
+};
+
+const postProcess = async (relatedArticles) => {
+	return relatedArticles.map(async (relatedArticle) => {
+		let html = await getHTML(relatedArticle.url);
+		relatedArticle['htmlBody'] = html;
+		return relatedArticle;
 	});
 };

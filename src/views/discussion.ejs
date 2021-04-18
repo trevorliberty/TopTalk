@@ -5,6 +5,11 @@
 		<% article.relatedArticles.forEach(function(article){ %> <%-
 		include('storyCard', {article:article}); -%> <% }); %>
 	</div>
+	<div
+		id="active_article"
+		class="container-fluid"
+		style="width: 70vw;  position: absolute; padding-top:10px; padding-bottom:15px"
+	></div>
 </div>
 
 <!-- 

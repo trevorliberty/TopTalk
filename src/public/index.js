@@ -174,7 +174,7 @@ $(document).ready(() => {
 		}, 130);
 	});
 	let str = `<%= include('topicCard', {article: articles[0]}); %>`;
-	//$('body').html(htmlDecode(str))
+	// $('body').html(htmlDecode(str))
 	$('#sidebarCollapse_').on('click', function () {
 		$('#sidebar').toggleClass('active');
 		$('#sidebarCollapse_').css('display', 'none');
@@ -182,9 +182,12 @@ $(document).ready(() => {
 
 	$('[id^="show_"]').click(function (e) {
 		// do something
-		// $(this).find('img').attr('src', '/admin/images/ok.png');
 		let doc = $(this)[0].id.replace('show', '#article')
-		$(doc).show();
+		$('#active_article').html(htmlDecode($(doc)[0].innerHTML))
 	});
+
+	$('.clickCatcher').click((e)=>{
+		console.log(e.currentTarget.id)
+	})
 
 });

@@ -1,3 +1,5 @@
+<% if(article.htmlBody) { %>
+	
 <div class="container">
 	<div class="card" style="width: 500px !important; height: 50vh">
 		<div style="text-align: center">
@@ -31,65 +33,10 @@
 		</div>
 	</div>
 
-	<div id="article_<%=article.id%>"class="container-fluid" style="width: 70vw;display: none; position: absolute">
-		<p>
-			Global deaths from COVID-19 has surpassed 3 million, according to the
-			<a href="https://origin-coronavirus.jhu.edu/map.html">latest data</a> from
-			John Hopkins University.
-		</p>
-		<p>
-			Leading in those deaths are the United States, with more than 566,000, and
-			Brazil, with more than 368,000. They are followed by Mexico, India and the
-			United Kingdom.
-		</p>
-		<p>
-			The global death toll reached 1 million in September 2020 and 2 million in
-			January.
-		</p>
-		<p>
-			<a href="#hi" style="display: none"></a>The grim milestone comes after
-			health officials in the U.S. paused rollout of the single-dose Johnson
-			&amp; Johnson vaccine after six women experienced rare but severe blood
-			clots a week or two after receiving it.
-		</p>
-		<p>
-			Overall, more than
-			<a href="https://covid.cdc.gov/covid-data-tracker/#vaccinations"
-				>129 million</a
-			>
-			people in the U.S. have received at least one dose of COVID-19 vaccine,
-			including 7.8 million doses of the J&amp;J vaccine. More than 82 million
-			Americans &mdash; nearly 25% of the population &mdash; have been fully
-			vaccinated.
-		</p>
-		<p>
-			In Brazil, deaths have
-			<a
-				href="https://www.npr.org/2021/04/15/987741403/brazil-covid-19-humanitarian-crisis-with-more-than-3-000-deaths-a-day"
-				>topped 3,000 per day</a
-			>
-			as the country is ravaged by the virus. Mexico has recorded more than
-			211,000 deaths. India has had more than 175,000 deaths and deaths in the
-			United Kingdom have topped 127,000.
-		</p>
-		<p>
-			COVID-19 variants are spreading throughout the U.S., with the more
-			contagious U.K. variant, B.1.1.7, now dominant. On Friday, the Biden
-			administration announced plans to spend
-			<a
-				href="https://www.npr.org/sections/health-shots/2021/04/16/988019682/biden-administration-to-spend-1-7-billion-track-spread-of-coronavirus-variants"
-				>$1.7 billion</a
-			>
-			on combating and tracking variants.
-		</p>
-		<p>
-			Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-			tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
-			veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
-			commodo consequat. Duis aute irure dolor in reprehenderit in voluptate
-			velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat
-			cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
-			est laborum.
-		</p>
-	</div>
+	<div id="article_<%=article.id%>"style="display: none;padding-top:10px">
+		<h1><%=article.title%></h1>
+		<%=article.htmlBody%>
+	</div> 
 </div>
+
+<%}%>

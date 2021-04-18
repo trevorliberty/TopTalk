@@ -114,11 +114,12 @@ const server = http.createServer(app);
 const io = socketio(server);
 
 // Our vars
-// let topicArticleData = run();
+//  let topicArticleData = run();
+//  console.log(topicArticleData);
 const topicArticleData = require('./results');
 const users = new Map(); // Map[userId, userName]
 const topics = new Map() // Map[topicId, Topic]
-topicArticleData.forEach(topic => topics.set(topic.id, new Topic(topic)))
+// topicArticleData.forEach(topic => topics.set(topic.id, new Topic(topic)))
 
 // Status constants
 const STATUS_REJECTED = 'STATUS_REJECTED';
