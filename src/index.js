@@ -15,19 +15,15 @@ function getTopicHTML(topic) {
 	topic.relatedArticles=JSON.parse(topic.relatedArticles)
 	topic.source=JSON.parse(topic.source)
 
-	// console.log(topic);
 	ejs.renderFile(
 		'./views/discussion.ejs',
 		{ article: topic },
 		{},
 		(err, str) => {
 			html = str;
-			console.log(str)
-			console.log(err);
 		},
 	);
 
-	console.log(html)
 	return html;
 }
 /**
@@ -143,7 +139,6 @@ const io = socketio(server, {
 
 // Our vars
 //  let topicArticleData = run();
-//  console.log(topicArticleData);
 const topicArticleData = require('./results');
 const users = new Map(); // Map[userId, userName]
 const topics = new Map() // Map[topicId, Topic]
@@ -233,17 +228,9 @@ io.on('connection', (socket) => {
 	// User makes a comment
 	socket.on(CLIENT_EVENT_COMMENT, (content, articleId, replyingToId, callback) => {
 		const newCommentId = uuid.v4();
-		const topicInFocusTopLevelComments = topics.get(topicInFocusId).comments
-		const topicInFocusAllComments = topics.get(topicInFocusId).allCommentMap
 		const commentToAdd = new Comment(userName, content, articleId, replyingToId)
+		topics.get(topicInFocusId).comments.set(newCommentId, commentToAdd)
 
-		if (replyingToId == null) {
-			topicInFocusTopLevelComments.set(newCommentId, commentToAdd)
-			topicInFocusAllComments.set(newCommentId, commentToAdd)
-		} else {
-			topicInFocusAllComments.get(replyingToId).responses.set(newCommentId, commentToAdd)
-			topicInFocusAllComments.set(newCommentId, commentToAdd)
-		}
 		io.to(topicInFocusId).emit(SERVER_EVENT_COMMENT, socket.id, newCommentId, content, articleId, replyingToId);
 		callback({
 			id : newCommentId 

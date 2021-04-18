@@ -30,13 +30,22 @@ class Topic {
 		this.id = sourceObject.id;
 		this.sourceArticle = new Article(JSON.parse(sourceObject.source));
 		this.relatedArticles = [];
+
 		JSON.parse(sourceObject.relatedArticles).forEach((relatedArticle) =>
 			this.relatedArticles.push(new Article(relatedArticle)),
 		);
+
 		this.comments = new Map();
-		for (let k of Object.keys(sourceObject.comments)) {
-			this.comments.set(k, new Comment(sourceObject.comments[k]));
+
+		let parsedComments = JSON.parse(sourceObject.comments)
+		for(const key of Object.keys(parsedComments)) {
+			this.comments.set(key, new Comment(parsedComments[key]));
 		}
+
+		// for (let k of Object.keys(sourceObject.comments)) {
+		// 	this.comments.set(k, new Comment(sourceObject.comments[k]));
+		// }
+
 	}
 	toJSON() {
 		return {
@@ -118,9 +127,7 @@ function handleServerSideComments(topic){
 
 function focusTopic(topicId) {
 	socket.emit(CLIENT_EVENT_GET_TOPIC, topicId, (response) => {
-		console.log(JSON.parse(response.topic));
 		const topic = new Topic(JSON.parse(response.topic));
-		console.log(topic)
 		handleServerSideComments(topic)
 		const upvotedCommentIds = JSON.parse(response.upvotedCommentIds);
 		const downvotedCommentIds = JSON.parse(response.downvotedCommentIds);
@@ -136,7 +143,6 @@ function message(content, articleId, replyingToId) {
 		articleId,
 		replyingToId,
 		(response) => {
-			console.log(response.id);
 			return response.id;
 		}
 	);
@@ -169,7 +175,6 @@ function handleCommentEmission(senderId,messageId,content,articleId,replyingToId
 
 
 function handleFocus(topicHTML, topic, upvotedCommentIds, downvotedCommentIds) {
-	// console.log(topic.toJSON())
 	$('#topicInFocus').html(topicHTML);
 	$('#sidebarCollapse_').on('click', function () {
 		$('#content').width('70vw');
@@ -181,7 +186,6 @@ function handleFocus(topicHTML, topic, upvotedCommentIds, downvotedCommentIds) {
 		// do something
 		let doc = $(this)[0].id.replace('show', '#article');
 		$('#active_article').html(htmlDecode($(doc)[0].innerHTML));
-		console.log($(this)[0].id);
 	});
 
 	$('.commentPicker').keydown((e)=>{
@@ -189,7 +193,6 @@ function handleFocus(topicHTML, topic, upvotedCommentIds, downvotedCommentIds) {
 			e.preventDefault();
 			let id = e.currentTarget.id.replace('comment_', '');
 			let comment = e.currentTarget.value;
-			// console.log(e.currentTarget.value);
 			message(comment, id, null)
 			e.currentTarget.value = ''
 		}
@@ -199,16 +202,9 @@ $(document).ready(() => {
 	socket.on(
 		SERVER_EVENT_COMMENT,
 		(senderId, messageId, content, articleId, replyingToId) => {
-			console.log(senderId)
-			console.log(messageId);
-			console.log(content);
-			console.log(articleId);
 			if (replyingToId) {
-				console.log(`REPLYING TO ${replyingToId}`);
-				console.log(`CONTENT: ${content}`);
 				//TODO handle if response message
 			} else {
-				console.log(content);
 				//TODO handle original comment
 			}
 			handleCommentEmission(senderId,messageId,content,articleId,replyingToId)
@@ -226,7 +222,6 @@ $(document).ready(() => {
 	});
 
 	$('#sidebarCollapse').on('click', function () {
-		console.log("SIDEBARCOLLAPSE CLICK")
 		$('#content').width('100%');
 		// $('#sidebar').toggleClass('active');
 		$('#sidebar').css('margin-left','-30vw')
@@ -237,7 +232,6 @@ $(document).ready(() => {
 		}, 130);
 	});
 	$('#sidebarCollapse_').on('click', function () {
-		console.log("SIDEBARCOLLAPSE UNDERSCORE CLICK")
 		$('#content').width('70vw');
 		// $('#sidebar').toggleClass('active');
 		 $('#sidebarCollapse_').css('display', 'none');
@@ -248,7 +242,6 @@ $(document).ready(() => {
 		// do something
 		let doc = $(this)[0].id.replace('show', '#article');
 		$('#active_article').html(htmlDecode($(doc)[0].innerHTML));
-		console.log($(this)[0].id);
 	});
 
 	$('.clickCatcher').click((e) => {
