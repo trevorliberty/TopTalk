@@ -1,49 +1,87 @@
 <div>
-	<h2><%=article.source.title%></h2>
-
-	<div
-		id="stories"
-		style="display: flex; overflow-x: scroll; overflow-y: hidden"
-	>
-		<% article.relatedArticles.forEach(function(article){ %> <%-
-		include('storyCard', {article:article}); -%> <% }); %>
-	</div>
-	<div
-		id="active_article"
-		class="container-fluid"
-		style="width: 65vw; padding-top: 10px; padding-bottom: 15px"
-	></div>
+  <h2 id="backToTheTop" class="mt-1"><%=article.source.title%></h2>
+  <div
+    id="stories"
+    style="display: flex; overflow-x: scroll; overflow-y: hidden"
+  >
+    <% article.relatedArticles.forEach(function(article){ %> <%-
+    include('storyCard', {article:article}); -%> <% }); %>
+  </div>
+  <div
+    id="active_article"
+    class="container-fluid"
+    style="width: 62vw; padding-top: 10px; padding-bottom: 15px"
+  ></div>
 </div>
 
 <div
-	id="messageArea_<%=article.id%>"
-	class="container-fluid jumbotron"
-	style="width: 80%; margin-top: 20px; max-height: 35vh; overflow-y: scroll"
+  id="messageArea_<%=article.id%>"
+  class="container-fluid jumbotron"
+  style="
+    width: 80%;
+    margin-top: 20px;
+    max-height: 35vh;
+    overflow-y: scroll;
+    margin-bottom: 10;
+    padding-bottom: 6px;
+  "
 >
-	<div class="card mb-5">
-		<div class="card-header">Quote</div>
-		<div class="card-body">
-			<blockquote class="blockquote mb-0">
-				<p>A well-known quote, contained in a blockquote element.</p>
-			</blockquote>
-		</div>
-	</div>
-	<div class="card">
-		<div class="card-header">Quote</div>
-		<div class="card-body">
-			<blockquote class="blockquote mb-0">
-				<p>A well-known quote, contained in a blockquote element.</p>
-				<footer class="blockquote-footer">
-					Someone famous in <cite title="Source Title">Source Title</cite>
-				</footer>
-			</blockquote>
-		</div>
-	</div>
+  <div class="card mb-5">
+    <div class="card-header">Quote</div>
+    <div class="card-body">
+      <blockquote class="blockquote mb-0">
+        <p>A well-known quote, contained in a blockquote element.</p>
+      </blockquote>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header">Quote</div>
+    <div class="card-body">
+      <blockquote class="blockquote mb-0">
+        <p>A well-known quote, contained in a blockquote element.</p>
+        <footer class="blockquote-footer">
+          Someone famous in <cite title="Source Title">Source Title</cite>
+        </footer>
+      </blockquote>
+    </div>
+  </div>
 </div>
-<div style="text-align: center">
-	<textarea
-		class="commentPicker"
-		id="comment_<%=article.id%>"
-		style="width: 80%"
-	></textarea>
+<i
+  class="fas fa-arrow-up"
+  id="topperButton"
+  style="
+    width: 60px;
+    height: 60px;
+    position: fixed;
+    bottom: 30px;
+    border-radius: 30px;
+    right: 16px;
+    background-color: #7386d5;
+    color: white;
+    padding: 8px;
+  "
+  onclick='location.replace("#backToTheTop")'
+></i>
+<i
+  class="fas fa-comments"
+  id="messageJumper"
+  style="
+    width: 80px;
+    height: 60px;
+    position: fixed;
+    bottom: 100px;
+    border-radius: 30px;
+    right: 8px;
+    background-color: white;
+    color: #7385d5;
+    padding: 8px;
+  "
+  onclick='location.replace("#messageJump")'
+></i>
+<div id="messageJump" style="text-align: center; padding-bottom: 18px">
+  <textarea
+    class="commentPicker"
+    id="comment_<%=article.id%>"
+    style="width: 80%"
+  ></textarea>
 </div>
