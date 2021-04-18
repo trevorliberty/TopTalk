@@ -163,7 +163,6 @@ function downvote(commentId) {
 
 function getCommentHTML(senderId,messageId,content,articleId,replyingToId, time){
 
-	x = new Date().getTime();
 	return `
 		<div class="card">
 		<div class="card-header">${senderId}</div>
@@ -219,7 +218,7 @@ function handleFocus(topicHTML, topic, upvotedCommentIds, downvotedCommentIds) {
 $(document).ready(() => {
 	socket.on(
 		SERVER_EVENT_COMMENT,
-		(senderId, messageId, content, articleId, replyingToId) => {
+		(senderId, messageId, content, articleId, replyingToId,time) => {
 			if (replyingToId) {
 				//TODO handle if response message
 			} else {

@@ -233,7 +233,9 @@ io.on('connection', (socket) => {
 		const commentToAdd = new Comment(userName, content, articleId, replyingToId)
 		topics.get(topicInFocusId).comments.set(newCommentId, commentToAdd)
 
-		io.to(topicInFocusId).emit(SERVER_EVENT_COMMENT, socket.id, newCommentId, content, articleId, replyingToId);
+		 const now = new Date();
+			const time = date.format(now, 'h:mm:ss A');
+		io.to(topicInFocusId).emit(SERVER_EVENT_COMMENT, socket.id, newCommentId, content, articleId, replyingToId,time);
 		callback({
 			id : newCommentId 
 		})
