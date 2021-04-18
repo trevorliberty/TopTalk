@@ -1,5 +1,10 @@
 const socket = io();
 
+let roomFocus = null;
+let inFocus = false;
+let upChevron = `<i class="fas fa-chevron-up fa-2x" style="color: #7386d5"> </i>`;
+let downChevron = `<i class="fas fa-chevron-down fa-2x" style="color: #7386d5"> </i>`;
+
 function htmlDecode(value) {
   return $("<textarea/>").html(value).text();
 }
@@ -117,24 +122,8 @@ function register(userName) {
   });
 }
 
-function handleServerSideComments(topic) {
-  for (const [k, comment] of topic.comments.entries()) {
-    console.log(comment);
-  }
-}
-
-function focusTopic(topicId) {
-  socket.emit(CLIENT_EVENT_GET_TOPIC, topicId, (response) => {
-    const topic = new Topic(JSON.parse(response.topic));
-    handleServerSideComments(topic);
-    const upvotedCommentIds = JSON.parse(response.upvotedCommentIds);
-    const downvotedCommentIds = JSON.parse(response.downvotedCommentIds);
-    const topicHTML = response.topicHTML;
-    handleFocus(topicHTML, topic, upvotedCommentIds, downvotedCommentIds);
-  });
-}
-
 function message(content, articleId, replyingToId) {
+  // console.log(`message function: ${articleId}`);
   socket.emit(
     CLIENT_EVENT_COMMENT,
     content,
@@ -154,13 +143,28 @@ function downvote(commentId) {
   socket.emit(CLIENT_EVENT_DOWNVOTE, commentId);
 }
 
-function getCommentHTML(senderId, messageId, content, articleId, replyingToId) {
+function getCommentHTML(
+  senderId,
+  articleId,
+  content,
+  messageId,
+  replyingToId,
+  time
+) {
+  // console.log("HOIOO")
+  // console.log(senderId)
+  // console.log(content)
+  // console.log(time)
+
   return `
 		<div class="card">
 		<div class="card-header">${senderId}</div>
 		<div class="card-body">
 			<blockquote class="blockquote mb-0">
 				<p>${content}</p>
+				<footer class="blockquote-footer">
+				${time}
+				</footer>
 			</blockquote>
 		</div>
 		</div>
@@ -168,22 +172,57 @@ function getCommentHTML(senderId, messageId, content, articleId, replyingToId) {
 }
 function handleCommentEmission(
   senderId,
-  messageId,
-  content,
   articleId,
-  replyingToId
+  content,
+  messageId,
+  replyingToId,
+  time
 ) {
   let html = getCommentHTML(
     senderId,
-    messageId,
-    content,
     articleId,
-    replyingToId
+    content,
+    messageId,
+    replyingToId,
+    time
   );
+  console.log(`this is the value in handleCommentEmission(): ${articleId}`);
   $(`#messageArea_${articleId}`).append(html);
-  $(`#messageArea_${articleId}`).scrollTop(
-    $(`#messageArea_${articleId}`)[0].scrollHeight
-  );
+}
+/*
+		this.authorName = sourceObject.authorName;
+		this.content = sourceObject.content;
+		this.articleId = sourceObject.articleId;
+		this.replyingToId = sourceObject.replyingToId;
+*/
+function handleServerSideComments(topic) {
+  for (const [k, value] of topic.comments.entries()) {
+    //TODO
+    console.log(`this is the value of topic: ${topic.id}`);
+    handleCommentEmission(
+      value["author"],
+      topic.id,
+      value["content"],
+      value["articleId"],
+      value["replyingToId"],
+      "2020"
+    );
+  }
+}
+
+function focusTopic(topicId) {
+  socket.emit(CLIENT_EVENT_GET_TOPIC, topicId, (response) => {
+    const topic = new Topic(JSON.parse(response.topic));
+    console.log(`response topic`);
+    // console.log(response.topic);
+
+    console.log(`focusTopic() topicID: ${topicId}`);
+    handleServerSideComments(topic);
+    const upvotedCommentIds = JSON.parse(response.upvotedCommentIds);
+    const downvotedCommentIds = JSON.parse(response.downvotedCommentIds);
+    const topicHTML = response.topicHTML;
+    handleFocus(topicHTML, topic, upvotedCommentIds, downvotedCommentIds);
+  });
 }
 
 function handleFocus(topicHTML, topic, upvotedCommentIds, downvotedCommentIds) {
@@ -195,7 +234,15 @@ function handleFocus(topicHTML, topic, upvotedCommentIds, downvotedCommentIds) {
   });
 
   $('[id^="show_"]').click(function (e) {
-    // do something
+    // console.log(e.currentTarget);
+    if (roomFocus === $(this)[0].id) {
+      $(this)[0].innerHTML = upChevron;
+      $("#active_article").html("");
+      roomFocus = null;
+      return;
+    }
+    roomFocus = $(this)[0].id;
+    $(this)[0].innerHTML = downChevron;
     let doc = $(this)[0].id.replace("show", "#article");
     $("#active_article").html(htmlDecode($(doc)[0].innerHTML));
   });
@@ -203,28 +250,35 @@ function handleFocus(topicHTML, topic, upvotedCommentIds, downvotedCommentIds) {
   $(".commentPicker").keydown((e) => {
     if (e.keyCode === 13) {
       e.preventDefault();
+      console.log(e.currentTarget.id);
       let id = e.currentTarget.id.replace("comment_", "");
       let comment = e.currentTarget.value;
+      console.log(`id from keydown enter ${id}`);
       message(comment, id, null);
       e.currentTarget.value = "";
     }
   });
 }
+//io.to(topicInFocusId).emit(SERVER_EVENT_COMMENT, socket.id, newCommentId, content, topicInFocusId, replyingToId,time);
+
 $(document).ready(() => {
   socket.on(
     SERVER_EVENT_COMMENT,
-    (senderId, messageId, content, articleId, replyingToId) => {
+    (senderId, messageId, content, articleId, replyingToId, time) => {
+      console.log(`INSIDE SERVER_EVENT_COMMENT: ${articleId}`);
       if (replyingToId) {
         //TODO handle if response message
       } else {
         //TODO handle original comment
       }
+
       handleCommentEmission(
         senderId,
-        messageId,
-        content,
         articleId,
-        replyingToId
+        content,
+        messageId,
+        replyingToId,
+        time
       );
     }
   );

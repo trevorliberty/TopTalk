@@ -6,8 +6,10 @@ const path = require("path");
 const socketio = require("socket.io");
 const http = require("http");
 const uuid = require("uuid");
-//const run = require('./api/dataprocess');
+const run = require("./api/dataprocess");
 const ejs = require("ejs");
+const date = require("date-and-time");
+
 function getTopicHTML(topic) {
   let html;
   topic = topic.toJSON();
@@ -234,13 +236,16 @@ io.on("connection", (socket) => {
       );
       topics.get(topicInFocusId).comments.set(newCommentId, commentToAdd);
 
+      const now = new Date();
+      const time = date.format(now, "h:mm:ss A");
       io.to(topicInFocusId).emit(
         SERVER_EVENT_COMMENT,
         socket.id,
         newCommentId,
         content,
-        articleId,
-        replyingToId
+        topicInFocusId,
+        replyingToId,
+        time
       );
       callback({
         id: newCommentId,
@@ -250,6 +255,7 @@ io.on("connection", (socket) => {
 
   // User upvotes a comment
   // Assumes client enforces user not bieng able to upvote their own comment
+
   socket.on(CLIENT_EVENT_UPVOTE, (commentId) => {
     const topicInFocus = topics.get(topicInFocusId);
     if (!topicInFocus.upvotedCommentIds.has(commentId)) {
