@@ -1,7 +1,7 @@
 <div>
 	<h2><%=article.source.title%></h2>
 
-	<div id="stories" style="display: flex; overflow-x: scroll; width: 70vw">
+	<div id="stories" style="display: flex; overflow-x: scroll; overflow-y: hidden;">
 		<% article.relatedArticles.forEach(function(article){ %> <%-
 		include('storyCard', {article:article}); -%> <% }); %>
 	</div>
