@@ -1,4 +1,5 @@
 require('dotenv').config();
+const { v4: uuidv4 } = require('uuid');
 const NewsAPI = require('newsapi');
 
 const newsapi = new NewsAPI(process.env.API_KEY);
@@ -14,9 +15,10 @@ const getQueryHeadlines = async (title, url) => {
 	let response = await newsapi.v2.everything({
 		q: title,
 	});
-	return response['articles'].filter((article) => {
-		return article.source.name !== 'Slashdot.org' && url !== article.url;
-	});
+	return response['articles']
+		.filter((article) => {
+			return article.source.name !== 'Slashdot.org' && url !== article.url;
+		})
 };
 
 module.exports = {

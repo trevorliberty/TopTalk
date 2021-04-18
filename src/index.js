@@ -8,7 +8,7 @@ const server = http.createServer(app);
 const io = socketio(server);
 const run = require('./api/dataprocess');
 const INIT = 'init';
-// let objects = run();
+//  let objects = run();
 
 let objects = require('./results');
 app.set('view engine', 'ejs');

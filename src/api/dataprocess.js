@@ -79,6 +79,10 @@ module.exports = async () => {
 		});
 		results = determineSelections(results);
 
+		article['id']=uuidv4();
+		if(results){
+			results.unshift(article)
+		}
 		const obj = {
 			id: uuidv4(),
 			source: article,
@@ -94,6 +98,12 @@ module.exports = async () => {
 		values = values.sort((a, b) => {
 			if (a.relatedArticles.length < b.relatedArticles.length) return 1;
 			return -1;
+		});
+		values.forEach((article) => {
+			article.relatedArticles.map((relatedArticle) => {
+				relatedArticle['id'] = uuidv4();
+				return relatedArticle;
+			});
 		});
 		fs.writeFile('results.json', JSON.stringify(values, null, 4), (e) => {});
 		return values;
