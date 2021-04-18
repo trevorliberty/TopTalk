@@ -136,13 +136,15 @@ function focusTopic(topicId) {
 	});
 }
 
-function message(content, commentId, articleId, replyingToId) {
+function message(content, articleId, replyingToId) {
 	socket.emit(
 		CLIENT_EVENT_COMMENT,
 		content,
-		commentId,
 		articleId,
 		replyingToId,
+		(response) => {
+			return response.id;
+		}
 	);
 }
 

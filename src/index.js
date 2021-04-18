@@ -226,7 +226,8 @@ io.on('connection', (socket) => {
 	});
 
 	// User makes a comment
-	socket.on(CLIENT_EVENT_COMMENT, (content, newCommentId, articleId, replyingToId) => {
+	socket.on(CLIENT_EVENT_COMMENT, (content, articleId, replyingToId, callback) => {
+		const newCommentId = uuid.v4();
 		const topicInFocusTopLevelComments = topics.get(topicInFocusId).comments
 		const topicInFocusAllComments = topics.get(topicInFocusId).allCommentMap
 		const commentToAdd = new Comment(userName, content, articleId, replyingToId)
@@ -239,6 +240,9 @@ io.on('connection', (socket) => {
 			topicInFocusAllComments.set(newCommentId, commentToAdd)
 		}
 		socket.to(topicInFocusId).emit(SERVER_EVENT_COMMENT, senderId, newCommentId, userName, content, articleId, replyingToId);
+		callback({
+			id : newCommentId 
+		})
 	});
 
 	// User upvotes a comment
