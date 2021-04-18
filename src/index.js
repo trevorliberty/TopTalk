@@ -8,6 +8,8 @@ const http = require('http');
 const uuid = require('uuid');
 const run = require('./api/dataprocess');
 const ejs = require('ejs');
+const date = require('date-and-time')
+
 function getTopicHTML(topic) {
 
 	let html;
@@ -244,7 +246,9 @@ io.on('connection', (socket) => {
 			topicInFocusAllComments.get(replyingToId).responses.set(newCommentId, commentToAdd)
 			topicInFocusAllComments.set(newCommentId, commentToAdd)
 		}
-		io.to(topicInFocusId).emit(SERVER_EVENT_COMMENT, socket.id, newCommentId, content, articleId, replyingToId);
+	 	const now = new Date();
+		const time = date.format(now, 'h:mm:ss A');
+		io.to(topicInFocusId).emit(SERVER_EVENT_COMMENT, socket.id, newCommentId, content, articleId, replyingToId, time);
 		callback({
 			id : newCommentId 
 		})

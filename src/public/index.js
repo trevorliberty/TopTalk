@@ -1,5 +1,10 @@
 const socket = io();
 
+let roomFocus=null
+let inFocus = false;
+let upChevron = `<i class="fas fa-chevron-up fa-2x" style="color: #7386d5"> </i>`
+let downChevron = `<i class="fas fa-chevron-down fa-2x" style="color: #7386d5"> </i>`
+
 function htmlDecode(value) {
 	return $('<textarea/>').html(value).text();
 }
@@ -150,20 +155,25 @@ function downvote(commentId) {
 	socket.emit(CLIENT_EVENT_DOWNVOTE, commentId);
 }
 
-function getCommentHTML(senderId,messageId,content,articleId,replyingToId){
+function getCommentHTML(senderId,messageId,content,articleId,replyingToId, time){
+
+	x = new Date().getTime();
 	return `
 		<div class="card">
 		<div class="card-header">${senderId}</div>
 		<div class="card-body">
 			<blockquote class="blockquote mb-0">
 				<p>${content}</p>
+				<footer class="blockquote-footer">
+				${time}
+				</footer>
 			</blockquote>
 		</div>
 		</div>
 	`;
 }
-function handleCommentEmission(senderId,messageId,content,articleId,replyingToId){
-	let html = getCommentHTML(senderId, messageId,content,articleId,replyingToId)
+function handleCommentEmission(senderId,messageId,content,articleId,replyingToId, time){
+	let html = getCommentHTML(senderId, messageId,content,articleId,replyingToId,time)
 	$(`#messageArea_${articleId}`).append(html);
 }
 
@@ -178,7 +188,15 @@ function handleFocus(topicHTML, topic, upvotedCommentIds, downvotedCommentIds) {
 	});
 
 	$('[id^="show_"]').click(function (e) {
-		// do something
+		console.log(e.currentTarget);
+		if(roomFocus === $(this)[0].id){
+			$(this)[0].innerHTML = upChevron
+			$('#active_article').html('');
+			roomFocus=null
+			return
+		}
+		roomFocus=$(this)[0].id;
+		$(this)[0].innerHTML = downChevron
 		let doc = $(this)[0].id.replace('show', '#article');
 		$('#active_article').html(htmlDecode($(doc)[0].innerHTML));
 		console.log($(this)[0].id);
@@ -198,7 +216,7 @@ function handleFocus(topicHTML, topic, upvotedCommentIds, downvotedCommentIds) {
 $(document).ready(() => {
 	socket.on(
 		SERVER_EVENT_COMMENT,
-		(senderId, messageId, content, articleId, replyingToId) => {
+		(senderId, messageId, content, articleId, replyingToId, time) => {
 			console.log(senderId)
 			console.log(messageId);
 			console.log(content);
@@ -211,7 +229,7 @@ $(document).ready(() => {
 				console.log(content);
 				//TODO handle original comment
 			}
-			handleCommentEmission(senderId,messageId,content,articleId,replyingToId)
+			handleCommentEmission(senderId,messageId,content,articleId,replyingToId,time)
 
 
 		},
@@ -226,7 +244,6 @@ $(document).ready(() => {
 	});
 
 	$('#sidebarCollapse').on('click', function () {
-		console.log("SIDEBARCOLLAPSE CLICK")
 		$('#content').width('100%');
 		// $('#sidebar').toggleClass('active');
 		$('#sidebar').css('margin-left','-30vw')
@@ -237,7 +254,6 @@ $(document).ready(() => {
 		}, 130);
 	});
 	$('#sidebarCollapse_').on('click', function () {
-		console.log("SIDEBARCOLLAPSE UNDERSCORE CLICK")
 		$('#content').width('70vw');
 		// $('#sidebar').toggleClass('active');
 		 $('#sidebarCollapse_').css('display', 'none');
@@ -246,9 +262,6 @@ $(document).ready(() => {
 
 	$('[id^="show_"]').click(function (e) {
 		// do something
-		let doc = $(this)[0].id.replace('show', '#article');
-		$('#active_article').html(htmlDecode($(doc)[0].innerHTML));
-		console.log($(this)[0].id);
 	});
 
 	$('.clickCatcher').click((e) => {
