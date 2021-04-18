@@ -124,6 +124,16 @@ function handleFocus(topicHTML, topic, upvotedCommentIds, downvotedCommentIds) {
 		$('#active_article').html(htmlDecode($(doc)[0].innerHTML));
 		console.log($(this)[0].id);
 	});
+
+	$('.commentPicker').keydown((e)=>{
+		if(e.keyCode === 13){
+			e.preventDefault();
+			console.log(e.currentTarget.id)
+			let id = e.currentTarget.id.replace('comment_', '');
+			let comment = e.currentTarget.id.value;
+			console.log(e.currentTarget.value);
+		}
+	})
 }
 
 function focusTopic(topicId) {
