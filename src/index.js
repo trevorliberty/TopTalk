@@ -7,7 +7,29 @@ const socketio = require('socket.io');
 const http = require('http');
 const uuid = require('uuid');
 const run = require('./api/dataprocess');
+const ejs = require('ejs');
+function getTopicHTML(topic) {
 
+	let html;
+	topic = topic.toJSON();
+	topic.relatedArticles=JSON.parse(topic.relatedArticles)
+	topic.source=JSON.parse(topic.source)
+
+	// console.log(topic);
+	ejs.renderFile(
+		'./views/discussion.ejs',
+		{ article: topic },
+		{},
+		(err, str) => {
+			html = str;
+			console.log(str)
+			console.log(err);
+		},
+	);
+
+	console.log(html)
+	return html;
+}
 /**
  * Classes
  */
@@ -26,7 +48,7 @@ class Article {
 		this.urlToImage = sourceObject.urlToImage;
 		this.publishedAt = sourceObject.publishedAt;
 		this.content = sourceObject.content;
-		this.weight = sourceObject.wieght;
+		this.weight = sourceObject.weight;
 	}
 
 	toJSON() {
@@ -44,7 +66,7 @@ class Article {
 			urlToImage: this.urlToImage,
 			publishedAt: this.publishedAt,
 			content: this.content,
-			wieght: this.weight
+			weight: this.weight
 		}
 	}
 }
@@ -195,6 +217,7 @@ io.on('connection', (socket) => {
 		topicInFocusId = topicId
 		socket.join(topicInFocusId);
 		callback({
+			topicHTML: getTopicHTML(topics.get(topicId)),
 			topic: JSON.stringify(topics.get(topicId)),
 			upvotedCommentIds: JSON.stringify(Array.from(this.upvotedCommentIds)),
 			downvotedCommentIds: JSON.stringify(Array.from(this.downvotedCommentIds))

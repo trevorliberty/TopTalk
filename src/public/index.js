@@ -1,5 +1,8 @@
 const socket = io();
 
+function htmlDecode(value) {
+	return $('<textarea/>').html(value).text();
+}
 /**
  * Objects
  */
@@ -40,8 +43,8 @@ class Topic {
 			id: this.id,
 			source: JSON.parse(this.sourceArticle),
 			relatedArticles: JSON.stringify(this.relatedArticles),
-			comments: Comment.mapToJson(this.comments)
-		}
+			comments: Comment.mapToJson(this.comments),
+		};
 	}
 }
 
@@ -75,10 +78,9 @@ class Comment {
 			articleId: this.articleId,
 			replyingToId: this.replyingToId,
 			responses: Comment.mapToJson(this.responses),
-			score: this.score
-		}
+			score: this.score,
+		};
 	}
-
 }
 
 // Status constants
@@ -107,8 +109,21 @@ function register(userName) {
 	});
 }
 
-function handleFocus(topic, upvotedCommentIds, downvotedCommentIds) {
-	console.log(topic.toJSON())
+function handleFocus(topicHTML, topic, upvotedCommentIds, downvotedCommentIds) {
+	// console.log(topic.toJSON())
+	$('#topicInFocus').html(topicHTML);
+	$('#sidebarCollapse_').on('click', function () {
+		$('#content').width('70vw');
+		$('#sidebar').toggleClass('active');
+		$('#sidebarCollapse_').css('display', 'none');
+	});
+
+	$('[id^="show_"]').click(function (e) {
+		// do something
+		let doc = $(this)[0].id.replace('show', '#article');
+		$('#active_article').html(htmlDecode($(doc)[0].innerHTML));
+		console.log($(this)[0].id);
+	});
 }
 
 function focusTopic(topicId) {
@@ -116,12 +131,19 @@ function focusTopic(topicId) {
 		const topic = new Topic(JSON.parse(response.topic));
 		const upvotedCommentIds = JSON.parse(response.upvotedCommentIds);
 		const downvotedCommentIds = JSON.parse(response.downvotedCommentIds);
-		handleFocus(topic, upvotedCommentIds, downvotedCommentIds)
+		const topicHTML = response.topicHTML;
+		handleFocus(topicHTML, topic, upvotedCommentIds, downvotedCommentIds);
 	});
 }
 
 function message(content, commentId, articleId, replyingToId) {
-	socket.emit(CLIENT_EVENT_COMMENT, content, commentId, articleId, replyingToId);
+	socket.emit(
+		CLIENT_EVENT_COMMENT,
+		content,
+		commentId,
+		articleId,
+		replyingToId,
+	);
 }
 
 function upvote(commentId) {
@@ -151,33 +173,33 @@ $(document).ready(() => {
 		// TODO
 	});
 
-	function htmlDecode(value) {
-		return $('<textarea/>').html(value).text();
-	}
-
 	$('#sidebarCollapse').on('click', function () {
-		$('#content').width('100%')
-		$('#sidebar').toggleClass('active');
+		console.log("SIDEBARCOLLAPSE CLICK")
+		$('#content').width('100%');
+		// $('#sidebar').toggleClass('active');
+		$('#sidebar').css('margin-left','-30vw')
+
+			$('#sidebarCollapse_').css('display', 'block');
 		setTimeout(() => {
 			$('#sidebarCollapse_').css('display', 'block');
 		}, 130);
 	});
-	let str = `<%= include('topicCard', {article: articles[0]}); %>`;
-	// $('body').html(htmlDecode(str))
 	$('#sidebarCollapse_').on('click', function () {
-		$('#content').width('70vw')
-		$('#sidebar').toggleClass('active');
-		$('#sidebarCollapse_').css('display', 'none');
+		console.log("SIDEBARCOLLAPSE UNDERSCORE CLICK")
+		$('#content').width('70vw');
+		// $('#sidebar').toggleClass('active');
+		 $('#sidebarCollapse_').css('display', 'none');
+		 $('#sidebar').css('margin-left', 0)
 	});
 
 	$('[id^="show_"]').click(function (e) {
 		// do something
-		let doc = $(this)[0].id.replace('show', '#article')
-		$('#active_article').html(htmlDecode($(doc)[0].innerHTML))
+		let doc = $(this)[0].id.replace('show', '#article');
+		$('#active_article').html(htmlDecode($(doc)[0].innerHTML));
+		console.log($(this)[0].id);
 	});
 
 	$('.clickCatcher').click((e) => {
-		focusTopic(e.currentTarget.id)
-	})
-
+		focusTopic(e.currentTarget.id);
+	});
 });

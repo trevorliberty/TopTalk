@@ -132,6 +132,7 @@ module.exports = async () => {
 const postProcess = async (relatedArticles) => {
 	return relatedArticles.map(async (relatedArticle) => {
 		let html = await getHTML(relatedArticle.url);
+		html.replace(/<\/?video[\s>]/gi, '');
 		relatedArticle['htmlBody'] = html;
 		return relatedArticle;
 	});

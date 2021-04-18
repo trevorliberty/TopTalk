@@ -91,7 +91,7 @@ a:focus {
 }
 
 #sidebarCollapse_._active {
-    display:block
+    display:flex;
 
 }
 
