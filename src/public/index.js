@@ -126,7 +126,6 @@ function register(userName) {
 
 
 function message(content, articleId, replyingToId) {
-	// console.log(`message function: ${articleId}`);
 	socket.emit(
 		CLIENT_EVENT_COMMENT,
 		content,
@@ -147,14 +146,11 @@ function downvote(commentId) {
 }
 
 function getCommentHTML(senderId,articleId,content,messageId,replyingToId, time){
-	// console.log("HOIOO")
-	// console.log(senderId)
-	// console.log(content)
-	// console.log(time)
 
+	let ball ='sdf'
 	return `
 		<div class="card">
-		<div class="card-header">${senderId}</div>
+		<div class="card-header">${ball}</div>
 		<div class="card-body">
 			<blockquote class="blockquote mb-0">
 				<p>${content}</p>
@@ -168,7 +164,6 @@ function getCommentHTML(senderId,articleId,content,messageId,replyingToId, time)
 }
 function handleCommentEmission(senderId,articleId, content,messageId,replyingToId, time){
 	let html = getCommentHTML(senderId, articleId ,content,messageId,replyingToId,time)
-	console.log(`this is the value in handleCommentEmission(): ${articleId}`);
 	$(`#messageArea_${articleId}`).append(html);
 }
 /*
@@ -177,26 +172,22 @@ function handleCommentEmission(senderId,articleId, content,messageId,replyingToI
 		this.articleId = sourceObject.articleId;
 		this.replyingToId = sourceObject.replyingToId;
 */
-function handleServerSideComments(topic){
+function handleServerSideComments(topic,topicId){
 	for(const [k,value] of topic.comments.entries()){
 		//TODO
-		console.log(`this is the value of topic: ${topic.id}`);
-		handleCommentEmission(value['author'],  topic.id, value['content'], value['articleId'], value['replyingToId'], "2020")
+		handleCommentEmission(value['author'],  topicId, value['content'], value['articleId'], value['replyingToId'], "2020")
 	}
 }
 
 function focusTopic(topicId) {
 	socket.emit(CLIENT_EVENT_GET_TOPIC, topicId, (response) => {
 		const topic = new Topic(JSON.parse(response.topic));
-		console.log(`response topic`);
-		// console.log(response.topic);
 
-		console.log(`focusTopic() topicID: ${topicId}`)
-		handleServerSideComments(topic)
 		const upvotedCommentIds = JSON.parse(response.upvotedCommentIds);
 		const downvotedCommentIds = JSON.parse(response.downvotedCommentIds);
 		const topicHTML = response.topicHTML;
 		handleFocus(topicHTML, topic, upvotedCommentIds, downvotedCommentIds);
+		handleServerSideComments(topic, topicId)
 	});
 }
 
@@ -209,7 +200,6 @@ function handleFocus(topicHTML, topic, upvotedCommentIds, downvotedCommentIds) {
 	});
 
 	$('[id^="show_"]').click(function (e) {
-		// console.log(e.currentTarget);
 		if(roomFocus === $(this)[0].id){
 			$(this)[0].innerHTML = upChevron
 			$('#active_article').html('');
@@ -225,10 +215,8 @@ function handleFocus(topicHTML, topic, upvotedCommentIds, downvotedCommentIds) {
 	$('.commentPicker').keydown((e)=>{
 		if(e.keyCode === 13){
 			e.preventDefault();
-			console.log(e.currentTarget.id);
 			let id = e.currentTarget.id.replace('comment_', '');
 			let comment = e.currentTarget.value;
-			console.log(`id from keydown enter ${id}`);
 			message(comment, id, null)
 			e.currentTarget.value = ''
 		}
@@ -240,7 +228,6 @@ $(document).ready(() => {
 	socket.on(
 		SERVER_EVENT_COMMENT,
 		(senderId, messageId, content, articleId, replyingToId,time) => {
-			console.log(`INSIDE SERVER_EVENT_COMMENT: ${articleId}`);
 			if (replyingToId) {
 				//TODO handle if response message
 			} else {
