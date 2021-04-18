@@ -11,9 +11,60 @@ const run = require('./api/dataprocess');
 /**
  * Classes
  */
-class TopicComments {
-	constructor() {
+
+class Article {
+	// constructor(sourceId, sourceName, authorName, title, description, url, urlToImage, content) {
+	constructor(sourceObject) {
+		this.id = "" //TODO sourceObject.id;
+		this.htmlBody = "" //TODO sourceObject.htmlBody
+		this.sourceId = sourceObject.source.id;
+		this.sourceName = sourceObject.source.name;
+		this.author = sourceObject.name;
+		this.title = sourceObject.title;
+		this.description = sourceObject.description;
+		this.url = sourceObject.url;
+		this.urlToImage = sourceObject.urlToImage;
+		this.publishedAt = sourceObject.publishedAt;
+		this.content = sourceObject.content;
+		this.weight = sourceObject.wieght;
+	}
+
+	toJSON() {
+		return {
+			id : this.id,
+			htmlBody : this.htmlBody,
+			source : JSON.stringify({
+				id : this.sourceId,
+				name : this.sourceName
+			}),
+			author : this.author,
+			title : this.title,
+			description : this.description,
+			url : this.url,
+			urlToImage : this.urlToImage,
+			publishedAt : this.publishedAt,
+			content : this.content,
+			wieght : this.weight
+		}
+	}
+}
+
+class Topic {
+	constructor(sourceObject) {
+		this.id = sourceObject.id;
+		this.sourceArticle = new Article(sourceObject.source);
+		this.relatedArticles = []
+		sourceObject.relatedArticles.forEach(relatedArticle => this.relatedArticles.push(new Article(relatedArticle)))
 		this.comments = new Map();
+	}
+
+	toJSON() {
+		return {
+			id : this.id,
+			source : JSON.stringify(this.sourceArticle),
+			relatedArticles : JSON.stringify(this.relatedArticles),
+			comments : JSON.stringify(Comment.mapToJson(this.comments))
+		}
 	}
 }
 
@@ -34,7 +85,6 @@ class Comment {
 	 */
 	static mapToJson(messageMap) {
 		let ret = Object.create(null);
-		console.log(ret)
 		for (const [k, v] of messageMap) {
 			ret[k] = v;
 		}
@@ -48,7 +98,7 @@ class Comment {
 			articleId: this.articleId,
 			replyingToId: this.replyingToId,
 			score: this.score,
-			responses: Comment.mapToJson(this.responses)
+			responses: JSON.stringify(Comment.mapToJson(this.responses))
 		}
 	}
 
@@ -67,8 +117,8 @@ const io = socketio(server);
 // let topicArticleData = run();
 const topicArticleData = require('./results');
 const users = new Map(); // Map[userId, userName]
-const topicIdToTopic = new Map() // Map[topicId, Map[messageId, Comment]]
-topicArticleData.forEach(topic => topicIdToTopic.set(topic.id, new TopicComments()))
+const topics = new Map() // Map[topicId, Topic]
+topicArticleData.forEach(topic => topics.set(topic.id, new Topic(topic)))
 
 // Status constants
 const STATUS_REJECTED = 'STATUS_REJECTED';
@@ -76,7 +126,7 @@ const STATUS_ACCEPETED = 'STATUS_ACCEPETED';
 
 // Client side events
 const CLIENT_EVENT_REGISTER = 'CLIENT_EVENT_REGISTER';
-const CLIENT_EVENT_PICK_TOPIC = 'CLIENT_EVENT_PICK_TOPIC';
+const CLIENT_EVENT_GET_TOPIC = 'CLIENT_EVENT_GET_TOPIC';
 const CLIENT_EVENT_COMMENT = 'CLIENT_EVENT_COMMENT';
 const CLIENT_EVENT_UPVOTE = 'CLIENT_EVENT_UPVOTE';
 const CLIENT_EVENT_DOWNVOTE = 'CLIENT_EVENT_DOWNVOTE';
@@ -106,7 +156,6 @@ app.get('/', (req, res) => {
  * Socket
  */
 io.on('connection', (socket) => {
-
 	// User-sepecific variables
 	let topicInFocusId = null;
 	let userName = "";
@@ -138,24 +187,23 @@ io.on('connection', (socket) => {
 	});
 
 	// User puts topic in focus
-	socket.on(CLIENT_EVENT_PICK_TOPIC, (topicId, callback) => {
+	socket.on(CLIENT_EVENT_GET_TOPIC, (topicId, callback) => {
 		if (topicInFocusId) {
 			socket.leave(topicInFocusId);
 		}
 		topicInFocusId = topicId
 		socket.join(topicInFocusId);
-
 		callback({
-			topicComments: Comment.mapToJson(topicIdToTopic.get(topicInFocusId).comments),
-			upvotedCommentIds: this.upvotedCommentIds,
-			downvotedCommentIds: this.downvotedCommentIds
+			topic: JSON.stringify(topics.get(topicId)),
+			upvotedCommentIds: JSON.stringify(Array.from(this.upvotedCommentIds)),
+			downvotedCommentIds: JSON.stringify(Array.from(this.downvotedCommentIds))
 		})
 	});
 
 	// User makes a comment
 	socket.on(CLIENT_EVENT_COMMENT, (content, articleId, replyingToId) => {
 		let newCommentId = uuid.v4();
-		topicInFocusComments = topicIdToTopic.get(topicInFocusId).comments
+		topicInFocusComments = topics.get(topicInFocusId).comments
 
 		if (replyingToId == null) {
 			topicInFocusComments.set(newCommentId, new Comment(userName, content, articleId, replyingToId))
@@ -168,7 +216,7 @@ io.on('connection', (socket) => {
 	// User upvotes a comment
 	// Assumes client enforces user not bieng able to upvote their own comment
 	socket.on(CLIENT_EVENT_UPVOTE, (commentId) => {
-		const topicInFocus = topicIdToTopic.get(topicInFocusId)
+		const topicInFocus = topics.get(topicInFocusId)
 		if (!topicInFocus.upvotedCommentIds.has(commentId)) {
 			topicInFocus.downvotedCommentIds.delete(commentId);
 			topicInFocus.upvotedCommentIds.add(commentId)
@@ -179,7 +227,7 @@ io.on('connection', (socket) => {
 	// User upvotes a comment
 	// Assumes client enforces user not bieng able to upvote their own comment
 	socket.on(CLIENT_EVENT_DOWNVOTE, (commentId) => {
-		const topicInFocus = topicIdToTopic.get(topicInFocusId)
+		const topicInFocus = topics.get(topicInFocusId)
 		if (!topicInFocus.downvotedCommentIds.has(commentId)) {
 			topicInFocus.upvotedCommentIds.delete(commentId);
 			topicInFocus.downvotedCommentIds.add(commentId)
