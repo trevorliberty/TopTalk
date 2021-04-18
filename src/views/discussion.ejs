@@ -1,52 +1,74 @@
 <div>
-	<h2><%=article.source.title%></h2>
-
-	<div
-		id="stories"
-		style="display: flex; overflow-x: scroll; overflow-y: hidden"
-	>
-		<% article.relatedArticles.forEach(function(article){ %> <%-
-		include('storyCard', {article:article}); -%> <% }); %>
-	</div>
-	<div
-		id="active_article"
-		class="container-fluid"
-		style="width: 65vw; padding-top: 10px; padding-bottom: 15px"
-	></div>
+  <h2 id="backToTheTop"><%=article.source.title%></h2>
+  <div
+    id="stories"
+    style="display: flex; overflow-x: scroll; overflow-y: hidden"
+  >
+    <% article.relatedArticles.forEach(function(article){ %> <%-
+    include('storyCard', {article:article}); -%> <% }); %>
+  </div>
+  <div
+    id="active_article"
+    class="container-fluid"
+    style="width: 62vw; padding-top: 10px; padding-bottom: 15px"
+  ></div>
 </div>
 
 <div
-	id="messageArea_<%=article.id%>"
-	class="container-fluid jumbotron"
-	style="width: 80%; margin-top: 20px; max-height: 35vh; overflow-y: scroll"
+  id="messageArea_<%=article.id%>"
+  class="container-fluid jumbotron"
+  style="
+    width: 80%;
+    margin-top: 20px;
+    max-height: 35vh;
+    overflow-y: scroll;
+    margin-bottom: 10;
+  "
 >
-	<div class="card">
-		<div class="card-header">Quote</div>
-		<div class="card-body">
-			<blockquote class="blockquote mb-0">
-				<p>A well-known quote, contained in a blockquote element.</p>
-				<footer class="blockquote-footer">
-					Someone famous in <cite title="Source Title">Source Title</cite>
-				</footer>
-			</blockquote>
-		</div>
-	</div>
-	<div class="card">
-		<div class="card-header">Quote</div>
-		<div class="card-body">
-			<blockquote class="blockquote mb-0">
-				<p>A well-known quote, contained in a blockquote element.</p>
-				<footer class="blockquote-footer">
-					Someone famous in <cite title="Source Title">Source Title</cite>
-				</footer>
-			</blockquote>
-		</div>
-	</div>
+  <div class="card">
+    <div class="card-header">Quote</div>
+    <div class="card-body">
+      <blockquote class="blockquote mb-0">
+        <p>A well-known quote, contained in a blockquote element.</p>
+        <footer class="blockquote-footer">
+          Someone famous in <cite title="Source Title">Source Title</cite>
+        </footer>
+      </blockquote>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header">Quote</div>
+    <div class="card-body">
+      <blockquote class="blockquote mb-0">
+        <p>A well-known quote, contained in a blockquote element.</p>
+        <footer class="blockquote-footer">
+          Someone famous in <cite title="Source Title">Source Title</cite>
+        </footer>
+      </blockquote>
+    </div>
+  </div>
 </div>
+<i
+  class="fas fa-arrow-up"
+  id="topperButton"
+  style="
+    width: 60px;
+    height: 60px;
+    position: fixed;
+    bottom: 30px;
+    border-radius: 30px;
+    right: 16px;
+    background-color: #7386d5;
+    color: white;
+    padding: 8px;
+  "
+  onclick='location.replace("#backToTheTop")'
+></i>
+
 <div style="text-align: center">
-	<textarea
-		class="commentPicker"
-		id="comment_<%=article.id%>"
-		style="width: 80%"
-	></textarea>
+  <textarea
+    class="commentPicker"
+    id="comment_<%=article.id%>"
+    style="width: 80%"
+  ></textarea>
 </div>
