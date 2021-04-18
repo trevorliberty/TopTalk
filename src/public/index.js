@@ -151,11 +151,6 @@ function getCommentHTML(
   replyingToId,
   time
 ) {
-  // console.log("HOIOO")
-  // console.log(senderId)
-  // console.log(content)
-  // console.log(time)
-
   return `
 		<div class="card">
 		<div class="card-header">${senderId}</div>
@@ -189,12 +184,6 @@ function handleCommentEmission(
   console.log(`this is the value in handleCommentEmission(): ${articleId}`);
   $(`#messageArea_${articleId}`).append(html);
 }
-/*
-		this.authorName = sourceObject.authorName;
-		this.content = sourceObject.content;
-		this.articleId = sourceObject.articleId;
-		this.replyingToId = sourceObject.replyingToId;
-*/
 function handleServerSideComments(topic) {
   for (const [k, value] of topic.comments.entries()) {
     //TODO
@@ -227,6 +216,7 @@ function focusTopic(topicId) {
 
 function handleFocus(topicHTML, topic, upvotedCommentIds, downvotedCommentIds) {
   $("#topicInFocus").html(topicHTML);
+  $("#topperButton").hide();
   $("#sidebarCollapse_").on("click", function () {
     $("#content").width("70vw");
     $("#sidebar").toggleClass("active");
@@ -239,11 +229,13 @@ function handleFocus(topicHTML, topic, upvotedCommentIds, downvotedCommentIds) {
       $(this)[0].innerHTML = upChevron;
       $("#active_article").html("");
       roomFocus = null;
+      $("#topperButton").hide();
       return;
     }
     roomFocus = $(this)[0].id;
     $(this)[0].innerHTML = downChevron;
     let doc = $(this)[0].id.replace("show", "#article");
+    $("#topperButton").show();
     $("#active_article").html(htmlDecode($(doc)[0].innerHTML));
   });
 
