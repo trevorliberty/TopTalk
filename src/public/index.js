@@ -123,8 +123,6 @@ function register(userName) {
 }
 
 function message(content, articleId, replyingToId) {
-<<<<<<< HEAD
-  // console.log(`message function: ${articleId}`);
   socket.emit(
     CLIENT_EVENT_COMMENT,
     content,
@@ -134,17 +132,6 @@ function message(content, articleId, replyingToId) {
       return response.id;
     }
   );
-=======
-	socket.emit(
-		CLIENT_EVENT_COMMENT,
-		content,
-		articleId,
-		replyingToId,
-		(response) => {
-			return response.id;
-		}
-	);
->>>>>>> de9fdc1ceb475d2b6c47c79de19dca5683d5aa1e
 }
 
 function upvote(commentId) {
@@ -155,7 +142,6 @@ function downvote(commentId) {
   socket.emit(CLIENT_EVENT_DOWNVOTE, commentId);
 }
 
-<<<<<<< HEAD
 function getCommentHTML(
   senderId,
   articleId,
@@ -164,14 +150,9 @@ function getCommentHTML(
   replyingToId,
   time
 ) {
+  let ball = "sdf";
   return `
-=======
-function getCommentHTML(senderId,articleId,content,messageId,replyingToId, time){
-
-	let ball ='sdf'
-	return `
->>>>>>> de9fdc1ceb475d2b6c47c79de19dca5683d5aa1e
-		<div class="card">
+		<div class="card mt-5">
 		<div class="card-header">${ball}</div>
 		<div class="card-body">
 			<blockquote class="blockquote mb-0">
@@ -184,7 +165,6 @@ function getCommentHTML(senderId,articleId,content,messageId,replyingToId, time)
 		</div>
 	`;
 }
-<<<<<<< HEAD
 function handleCommentEmission(
   senderId,
   articleId,
@@ -201,16 +181,23 @@ function handleCommentEmission(
     replyingToId,
     time
   );
-  console.log(`this is the value in handleCommentEmission(): ${articleId}`);
   $(`#messageArea_${articleId}`).append(html);
+  $(`#messageArea_${articleId}`).scrollTop(
+    $(`#messageArea_${articleId}`)[0].scrollHeight
+  );
 }
-function handleServerSideComments(topic) {
+/*
+		this.authorName = sourceObject.authorName;
+		this.content = sourceObject.content;
+		this.articleId = sourceObject.articleId;
+		this.replyingToId = sourceObject.replyingToId;
+*/
+function handleServerSideComments(topic, topicId) {
   for (const [k, value] of topic.comments.entries()) {
     //TODO
-    console.log(`this is the value of topic: ${topic.id}`);
     handleCommentEmission(
       value["author"],
-      topic.id,
+      topicId,
       value["content"],
       value["articleId"],
       value["replyingToId"],
@@ -222,21 +209,19 @@ function handleServerSideComments(topic) {
 function focusTopic(topicId) {
   socket.emit(CLIENT_EVENT_GET_TOPIC, topicId, (response) => {
     const topic = new Topic(JSON.parse(response.topic));
-    console.log(`response topic`);
-    // console.log(response.topic);
 
-    console.log(`focusTopic() topicID: ${topicId}`);
-    handleServerSideComments(topic);
     const upvotedCommentIds = JSON.parse(response.upvotedCommentIds);
     const downvotedCommentIds = JSON.parse(response.downvotedCommentIds);
     const topicHTML = response.topicHTML;
     handleFocus(topicHTML, topic, upvotedCommentIds, downvotedCommentIds);
+    handleServerSideComments(topic, topicId);
   });
 }
 
 function handleFocus(topicHTML, topic, upvotedCommentIds, downvotedCommentIds) {
   $("#topicInFocus").html(topicHTML);
   $("#topperButton").hide();
+  $("#messageJumper").hide();
   $("#sidebarCollapse_").on("click", function () {
     $("#content").width("70vw");
     $("#sidebar").toggleClass("active");
@@ -244,102 +229,38 @@ function handleFocus(topicHTML, topic, upvotedCommentIds, downvotedCommentIds) {
   });
 
   $('[id^="show_"]').click(function (e) {
-    // console.log(e.currentTarget);
     if (roomFocus === $(this)[0].id) {
       $(this)[0].innerHTML = upChevron;
       $("#active_article").html("");
       roomFocus = null;
       $("#topperButton").hide();
+      $("#messageJumper").hide();
       return;
     }
+    $("#topperButton").show();
+    $("#messageJumper").show();
     roomFocus = $(this)[0].id;
     $(this)[0].innerHTML = downChevron;
     let doc = $(this)[0].id.replace("show", "#article");
-    $("#topperButton").show();
     $("#active_article").html(htmlDecode($(doc)[0].innerHTML));
   });
 
   $(".commentPicker").keydown((e) => {
     if (e.keyCode === 13) {
       e.preventDefault();
-      console.log(e.currentTarget.id);
       let id = e.currentTarget.id.replace("comment_", "");
       let comment = e.currentTarget.value;
-      console.log(`id from keydown enter ${id}`);
       message(comment, id, null);
       e.currentTarget.value = "";
     }
   });
-=======
-function handleCommentEmission(senderId,articleId, content,messageId,replyingToId, time){
-	let html = getCommentHTML(senderId, articleId ,content,messageId,replyingToId,time)
-	$(`#messageArea_${articleId}`).append(html);
-}
-/*
-		this.authorName = sourceObject.authorName;
-		this.content = sourceObject.content;
-		this.articleId = sourceObject.articleId;
-		this.replyingToId = sourceObject.replyingToId;
-*/
-function handleServerSideComments(topic,topicId){
-	for(const [k,value] of topic.comments.entries()){
-		//TODO
-		handleCommentEmission(value['author'],  topicId, value['content'], value['articleId'], value['replyingToId'], "2020")
-	}
-}
-
-function focusTopic(topicId) {
-	socket.emit(CLIENT_EVENT_GET_TOPIC, topicId, (response) => {
-		const topic = new Topic(JSON.parse(response.topic));
-
-		const upvotedCommentIds = JSON.parse(response.upvotedCommentIds);
-		const downvotedCommentIds = JSON.parse(response.downvotedCommentIds);
-		const topicHTML = response.topicHTML;
-		handleFocus(topicHTML, topic, upvotedCommentIds, downvotedCommentIds);
-		handleServerSideComments(topic, topicId)
-	});
-}
-
-function handleFocus(topicHTML, topic, upvotedCommentIds, downvotedCommentIds) {
-	$('#topicInFocus').html(topicHTML);
-	$('#sidebarCollapse_').on('click', function () {
-		$('#content').width('70vw');
-		$('#sidebar').toggleClass('active');
-		$('#sidebarCollapse_').css('display', 'none');
-	});
-
-	$('[id^="show_"]').click(function (e) {
-		if(roomFocus === $(this)[0].id){
-			$(this)[0].innerHTML = upChevron
-			$('#active_article').html('');
-			roomFocus=null
-			return
-		}
-		roomFocus=$(this)[0].id;
-		$(this)[0].innerHTML = downChevron
-		let doc = $(this)[0].id.replace('show', '#article');
-		$('#active_article').html(htmlDecode($(doc)[0].innerHTML));
-	});
-
-	$('.commentPicker').keydown((e)=>{
-		if(e.keyCode === 13){
-			e.preventDefault();
-			let id = e.currentTarget.id.replace('comment_', '');
-			let comment = e.currentTarget.value;
-			message(comment, id, null)
-			e.currentTarget.value = ''
-		}
-	})
->>>>>>> de9fdc1ceb475d2b6c47c79de19dca5683d5aa1e
 }
 //io.to(topicInFocusId).emit(SERVER_EVENT_COMMENT, socket.id, newCommentId, content, topicInFocusId, replyingToId,time);
 
 $(document).ready(() => {
-<<<<<<< HEAD
   socket.on(
     SERVER_EVENT_COMMENT,
     (senderId, messageId, content, articleId, replyingToId, time) => {
-      console.log(`INSIDE SERVER_EVENT_COMMENT: ${articleId}`);
       if (replyingToId) {
         //TODO handle if response message
       } else {
@@ -391,55 +312,4 @@ $(document).ready(() => {
   $(".clickCatcher").click((e) => {
     focusTopic(e.currentTarget.id);
   });
-=======
-	socket.on(
-		SERVER_EVENT_COMMENT,
-		(senderId, messageId, content, articleId, replyingToId,time) => {
-			if (replyingToId) {
-				//TODO handle if response message
-			} else {
-				//TODO handle original comment
-			}
-
-			handleCommentEmission(senderId,articleId,content,messageId,replyingToId,time)
-
-
-		},
-	);
-
-	socket.on(SERVER_EVENT_UPVOTE, (commentId) => {
-		// TODO
-	});
-
-	socket.on(SERVER_EVENT_DOWNVOTE, (commentId) => {
-		// TODO
-	});
-
-	$('#sidebarCollapse').on('click', function () {
-		$('#content').width('100%');
-		// $('#sidebar').toggleClass('active');
-		$('#sidebar').css('margin-left','-30vw')
-
-			$('#sidebarCollapse_').css('display', 'block');
-		setTimeout(() => {
-			$('#sidebarCollapse_').css('display', 'block');
-		}, 130);
-	});
-	$('#sidebarCollapse_').on('click', function () {
-		$('#content').width('70vw');
-		// $('#sidebar').toggleClass('active');
-		 $('#sidebarCollapse_').css('display', 'none');
-		 $('#sidebar').css('margin-left', 0)
-	});
-
-	$('[id^="show_"]').click(function (e) {
-		// do something
-		let doc = $(this)[0].id.replace('show', '#article');
-		$('#active_article').html(htmlDecode($(doc)[0].innerHTML));
-	});
-
-	$('.clickCatcher').click((e) => {
-		focusTopic(e.currentTarget.id);
-	});
->>>>>>> de9fdc1ceb475d2b6c47c79de19dca5683d5aa1e
 });

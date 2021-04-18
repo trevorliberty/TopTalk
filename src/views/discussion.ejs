@@ -1,5 +1,5 @@
 <div>
-  <h2 id="backToTheTop"><%=article.source.title%></h2>
+  <h2 id="backToTheTop" class="mt-1"><%=article.source.title%></h2>
   <div
     id="stories"
     style="display: flex; overflow-x: scroll; overflow-y: hidden"
@@ -23,6 +23,7 @@
     max-height: 35vh;
     overflow-y: scroll;
     margin-bottom: 10;
+    padding-bottom: 6px;
   "
 >
   <div class="card mb-5">
@@ -61,8 +62,23 @@
   "
   onclick='location.replace("#backToTheTop")'
 ></i>
-
-<div style="text-align: center">
+<i
+  class="fas fa-comments"
+  id="messageJumper"
+  style="
+    width: 80px;
+    height: 60px;
+    position: fixed;
+    bottom: 100px;
+    border-radius: 30px;
+    right: 8px;
+    background-color: white;
+    color: #7385d5;
+    padding: 8px;
+  "
+  onclick='location.replace("#messageJump")'
+></i>
+<div id="messageJump" style="text-align: center; padding-bottom: 18px">
   <textarea
     class="commentPicker"
     id="comment_<%=article.id%>"
