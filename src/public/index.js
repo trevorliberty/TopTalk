@@ -168,6 +168,7 @@ $(document).ready(() => {
 	}
 
 	$('#sidebarCollapse').on('click', function () {
+		$('#content').width('100%')
 		$('#sidebar').toggleClass('active');
 		setTimeout(() => {
 			$('#sidebarCollapse_').css('display', 'block');
@@ -176,6 +177,7 @@ $(document).ready(() => {
 	let str = `<%= include('topicCard', {article: articles[0]}); %>`;
 	// $('body').html(htmlDecode(str))
 	$('#sidebarCollapse_').on('click', function () {
+		$('#content').width('70vw')
 		$('#sidebar').toggleClass('active');
 		$('#sidebarCollapse_').css('display', 'none');
 	});
