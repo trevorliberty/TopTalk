@@ -77,7 +77,8 @@ class Topic {
 		this.sourceArticle = new Article(sourceObject.source);
 		this.relatedArticles = []
 		sourceObject.relatedArticles.forEach(relatedArticle => this.relatedArticles.push(new Article(relatedArticle)))
-		this.comments = new Map();
+		this.comments = new Map(); // Top level comments that are not responses
+		this.allCommentMap = new Map(); // A map from every valid comment id to the associated comment object
 	}
 
 	toJSON() {
@@ -225,14 +226,17 @@ io.on('connection', (socket) => {
 	});
 
 	// User makes a comment
-	socket.on(CLIENT_EVENT_COMMENT, (content, commentId, articleId, replyingToId) => {
-		const newCommentId = uuid.v4();
-		const topicInFocusComments = topics.get(topicInFocusId).comments
+	socket.on(CLIENT_EVENT_COMMENT, (content, newCommentId, articleId, replyingToId) => {
+		const topicInFocusTopLevelComments = topics.get(topicInFocusId).comments
+		const topicInFocusAllComments = topics.get(topicInFocusId).allCommentMap
 		const commentToAdd = new Comment(userName, content, articleId, replyingToId)
 
-		topicInFocusComments.set(newCommentId, commentToAdd)
-		if (replyingToId != null) {
-			topicInFocusComments.get(replyingToId).responses.set(newCommentId, commentToAdd)
+		if (replyingToId == null) {
+			topicInFocusTopLevelComments.set(newCommentId, commentToAdd)
+			topicInFocusAllComments.set(newCommentId, commentToAdd)
+		} else {
+			topicInFocusAllComments.get(replyingToId).responses.set(newCommentId, commentToAdd)
+			topicInFocusAllComments.set(newCommentId, commentToAdd)
 		}
 		socket.to(topicInFocusId).emit(SERVER_EVENT_COMMENT, senderId, newCommentId, userName, content, articleId, replyingToId);
 	});
