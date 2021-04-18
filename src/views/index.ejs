@@ -28,6 +28,7 @@
 			integrity="sha384-6OIrr52G08NpOFSZdxxz1xdNSndlD4vdcf/q2myIUVO0VsqaGHJsB0RaBE01VTOY"
 			crossorigin="anonymous"
 		></script>
+		<script src="https://github.com/mde/ejs/releases/download/v3.0.2/ejs.min.js"></script>
 	</head>
 
 	<body>
@@ -36,12 +37,21 @@
 			<%- include('navbar', {articles:articles}); -%>
 			<!-- Page Content  -->
 			<div id="content">
-				<div id="sidebarCollapse_" style="display: none">
-					<i class="fas fa-chevron-right fa-2x" style="color: #7386d5"></i>
+				<div
+					id="sidebarCollapse_"
+					style="
+						display: none;
+						padding: 20px;
+						background-color: #7386d5;
+						justify-content: center;
+					"
+				>
+					<i class="fas fa-chevron-right fa-2x" style="color: white"></i>
 				</div>
-			<%- include('discussion'); -%>
+				<div style="overflow-y: scroll; padding-left: 20px">
+					<%- include('discussion', {article:articles[0]}); -%>
+				</div>
 			</div>
-
 		</div>
 
 		<!-- jQuery CDN - Slim version (=without AJAX) -->
@@ -64,11 +74,19 @@
 		></script>
 
 		<script type="text/javascript">
+			function htmlDecode(value) {
+				return $('<textarea/>').html(value).text();
+			}
+
 			$(document).ready(function () {
 				$('#sidebarCollapse').on('click', function () {
 					$('#sidebar').toggleClass('active');
-					$('#sidebarCollapse_').css('display', 'block');
+					setTimeout(() => {
+						$('#sidebarCollapse_').css('display', 'block');
+					}, 130);
 				});
+				let str = `<%= include('topicCard', {article: articles[0]}); %>`;
+				//$('body').html(htmlDecode(str))
 				$('#sidebarCollapse_').on('click', function () {
 					$('#sidebar').toggleClass('active');
 					$('#sidebarCollapse_').css('display', 'none');

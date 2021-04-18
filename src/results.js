@@ -2,6 +2,7 @@ module.exports = [
 	{
 		id: '63d976d6-832b-438a-a56f-59f7f5076b42',
 		source: {
+			id:'uuid',
 			source: {
 				id: null,
 				name: 'NPR',
@@ -20,6 +21,7 @@ module.exports = [
 		},
 		relatedArticles: [
 			{
+				id: 'uuid',
 				source: {
 					id: null,
 					name: 'MarketWatch',
