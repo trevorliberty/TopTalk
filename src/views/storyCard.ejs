@@ -1,0 +1,42 @@
+<% if(article.htmlBody) { %>
+	
+<div class="container">
+	<div class="card" style="width: 500px !important; height: 50vh">
+		<div style="text-align: center">
+		<% if (article.urlToImage !== "null") { %>
+			<img
+				src="<%=article.urlToImage%>"
+				class="card-img-top"
+				style="width: 23rem; height: 15rem; padding: 10px; border-radius: 25px"
+			/>
+		<% } else { %>
+			<img
+				src="img/newspaper.png"
+				class="card-img-top"
+				style="width: 23rem; height: 15rem; padding: 10px; border-radius: 25px"
+			/>
+		<% } %>
+
+		</div>
+		<div class="card-body">
+			<h5 class="card-title"><%=article.title%></h5>
+			<p class="card-text">
+				<%=article.source.name%>
+			</p>
+			<!-- <a href="#" class="btn btn-primary">Go somewhere</a> -->
+			<p class="card-text" style="color:black; padding-bottom:0">
+				<%=article.content.substring(0, 80) %>...
+			</p>
+		</div>
+		<div id="show_<%=article.id%>" class="ml-auto" style="padding: 10px">
+			<i class="fas fa-chevron-down fa-2x" style="color: #7386d5"> </i>
+		</div>
+	</div>
+
+	<div id="article_<%=article.id%>"style="display: none;padding-top:10px">
+		<h1><%=article.title%></h1>
+		<%=article.htmlBody%>
+	</div> 
+</div>
+
+<%}%>

@@ -7,8 +7,8 @@ const socket = io();
 class Article {
 	// constructor(sourceId, sourceName, authorName, title, description, url, urlToImage, content) {
 	constructor(sourceObject) {
-		this.id = "" //TODO sourceObject.id;
-		this.htmlBody = "" //TODO sourceObject.htmlBody
+		this.id = ''; //TODO sourceObject.id;
+		this.htmlBody = ''; //TODO sourceObject.htmlBody
 		this.sourceId = sourceObject.source.id;
 		this.sourceName = sourceObject.source.name;
 		this.author = sourceObject.name;
@@ -26,8 +26,10 @@ class Topic {
 	constructor(sourceObject) {
 		this.id = sourceObject.id;
 		this.sourceArticle = new Article(JSON.parse(sourceObject.source));
-		this.relatedArticles = []
-		JSON.parse(sourceObject.relatedArticles).forEach(relatedArticle => this.relatedArticles.push(new Article(relatedArticle)))
+		this.relatedArticles = [];
+		JSON.parse(sourceObject.relatedArticles).forEach((relatedArticle) =>
+			this.relatedArticles.push(new Article(relatedArticle)),
+		);
 		this.comments = new Map();
 		for (let k of Object.keys(sourceObject.comments)) {
 		  this.comments.set(k, new Comment(sourceObject.comments[k]));
@@ -50,7 +52,6 @@ class Comment {
 	}
 }
 
-
 // Status constants
 const STATUS_REJECTED = 'STATUS_REJECTED';
 const STATUS_ACCEPETED = 'STATUS_ACCEPETED';
@@ -63,55 +64,87 @@ const CLIENT_EVENT_UPVOTE = 'CLIENT_EVENT_UPVOTE';
 const CLIENT_EVENT_DOWNVOTE = 'CLIENT_EVENT_DOWNVOTE';
 
 // Server side evetns
-const SERVER_EVENT_COMMENT =  'SERVER_EVENT_COMMENT';
+const SERVER_EVENT_COMMENT = 'SERVER_EVENT_COMMENT';
 const SERVER_EVENT_UPVOTE = 'SERVER_EVENT_UPVOTE';
 const SERVER_EVENT_DOWNVOTE = 'SERVER_EVENT_DOWNVOTE';
 
-
 function register(userName) {
-
-    socket.emit(CLIENT_EVENT_REGISTER, userName, (response) => {
-        if (response.status === STATUS_ACCEPETED) {
-            //TODO
-        } else {
-            // TODO
-        }
-    });
+	socket.emit(CLIENT_EVENT_REGISTER, userName, (response) => {
+		if (response.status === STATUS_ACCEPETED) {
+			//TODO
+		} else {
+			// TODO
+		}
+	});
 }
 
 function focusTopic(topicId) {
-    socket.emit(CLIENT_EVENT_GET_TOPIC, topicId, (response) => {
-        const topic = new Topic(JSON.parse(response.topic))
-        const upvotedCommentIds = JSON.parse(response.upvotedCommentIds)
-        const downvotedCommentIds = JSON.parse(response.downvotedCommentIds)
-        //TODO
-    });
+	socket.emit(CLIENT_EVENT_GET_TOPIC, topicId, (response) => {
+		const topic = new Topic(JSON.parse(response.topic));
+		const upvotedCommentIds = JSON.parse(response.upvotedCommentIds);
+		const downvotedCommentIds = JSON.parse(response.downvotedCommentIds);
+		//TODO
+	});
 }
 
 function message(content, articleId, replyingToId) {
-    socket.emit(CLIENT_EVENT_COMMENT, content, articleId, replyingToId)
+	socket.emit(CLIENT_EVENT_COMMENT, content, articleId, replyingToId);
 }
 
 function upvote(commentId) {
-    socket.emit(CLIENT_EVENT_UPVOTE, commentId)
+	socket.emit(CLIENT_EVENT_UPVOTE, commentId);
 }
 
 function downvote(commentId) {
-    socket.emit(CLIENT_EVENT_DOWNVOTE, commentId)
+	socket.emit(CLIENT_EVENT_DOWNVOTE, commentId);
 }
+$(document).ready(() => {
+	socket.on(
+		SERVER_EVENT_COMMENT,
+		(senderId, messageId, content, articleId, replyingToId) => {
+			if (replyingToId) {
+				//TODO handle if response message
+			} else {
+				//TODO handle original comment
+			}
+		},
+	);
 
-socket.on(SERVER_EVENT_COMMENT, (senderId, messageId, content, articleId, replyingToId) => {
-    if(replyingToId) {
-        //TODO handle if response message
-    } else {
-        //TODO handle original comment
-    }
-})
+	socket.on(SERVER_EVENT_UPVOTE, (commentId) => {
+		// TODO
+	});
 
-socket.on(SERVER_EVENT_UPVOTE, (commentId) => {
-    // TODO
-})
+	socket.on(SERVER_EVENT_DOWNVOTE, (commentId) => {
+		// TODO
+	});
 
-socket.on(SERVER_EVENT_DOWNVOTE, (commentId) => {
-    // TODO
-})
+	function htmlDecode(value) {
+		return $('<textarea/>').html(value).text();
+	}
+
+	$('#sidebarCollapse').on('click', function () {
+		$('#content').width('100%')
+		$('#sidebar').toggleClass('active');
+		setTimeout(() => {
+			$('#sidebarCollapse_').css('display', 'block');
+		}, 130);
+	});
+	let str = `<%= include('topicCard', {article: articles[0]}); %>`;
+	// $('body').html(htmlDecode(str))
+	$('#sidebarCollapse_').on('click', function () {
+		$('#content').width('70vw')
+		$('#sidebar').toggleClass('active');
+		$('#sidebarCollapse_').css('display', 'none');
+	});
+
+	$('[id^="show_"]').click(function (e) {
+		// do something
+		let doc = $(this)[0].id.replace('show', '#article')
+		$('#active_article').html(htmlDecode($(doc)[0].innerHTML))
+	});
+
+	$('.clickCatcher').click((e)=>{
+		console.log(e.currentTarget.id)
+	})
+
+});

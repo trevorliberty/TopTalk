@@ -1,0 +1,16 @@
+<nav id="sidebar">
+	<div class="sidebar-header d-flex" >
+		<div>
+			<h1>TopTalk</h1>
+			<p style="color: white;">Today's Trending Stories</p>
+		</div>
+		<div class='ml-auto my-auto' id="sidebarCollapse">
+			<i class="fas fa-chevron-left fa-2x" style="color:white"></i>
+		</div>
+	</div>
+	<ul class="list-unstyled components" style="padding:0;border:none;height: 90vh; overflow-y:auto">
+		<% articles.forEach(function(article){ %>
+		<li><%- include('topicCard', {article:article}); -%></li>
+		<% }); %>
+	</ul>
+</nav>
