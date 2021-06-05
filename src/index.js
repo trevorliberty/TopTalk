@@ -9,6 +9,8 @@ const uuid = require("uuid");
 // const run = require("./api/dataprocess");
 const ejs = require("ejs");
 const date = require("date-and-time");
+const Topic = require('./lib/Topic')
+const Comment = require('./lib/Comment')
 
 function getTopicHTML(topic) {
   let html;
@@ -31,99 +33,8 @@ function getTopicHTML(topic) {
  * Classes
  */
 
-class Article {
-  // constructor(sourceId, sourceName, authorName, title, description, url, urlToImage, content) {
-  constructor(sourceObject) {
-    this.id = sourceObject.id;
-    this.htmlBody = sourceObject.htmlBody;
-    this.sourceId = sourceObject.source.id;
-    this.sourceName = sourceObject.source.name;
-    this.author = sourceObject.name;
-    this.title = sourceObject.title;
-    this.description = sourceObject.description;
-    this.url = sourceObject.url;
-    this.urlToImage = sourceObject.urlToImage;
-    this.publishedAt = sourceObject.publishedAt;
-    this.content = sourceObject.content;
-    this.weight = sourceObject.weight;
-  }
 
-  toJSON() {
-    return {
-      id: this.id,
-      htmlBody: this.htmlBody,
-      source: JSON.stringify({
-        id: this.sourceId,
-        name: this.sourceName,
-      }),
-      author: this.author,
-      title: this.title,
-      description: this.description,
-      url: this.url,
-      urlToImage: this.urlToImage,
-      publishedAt: this.publishedAt,
-      content: this.content,
-      weight: this.weight,
-    };
-  }
-}
 
-class Topic {
-  constructor(sourceObject) {
-    this.id = sourceObject.id;
-    this.sourceArticle = new Article(sourceObject.source);
-    this.relatedArticles = [];
-    sourceObject.relatedArticles.forEach((relatedArticle) =>
-      this.relatedArticles.push(new Article(relatedArticle))
-    );
-    this.comments = new Map(); // Top level comments that are not responses
-    this.allCommentMap = new Map(); // A map from every valid comment id to the associated comment object
-  }
-
-  toJSON() {
-    return {
-      id: this.id,
-      source: JSON.stringify(this.sourceArticle),
-      relatedArticles: JSON.stringify(this.relatedArticles),
-      comments: JSON.stringify(Comment.mapToJson(this.comments)),
-    };
-  }
-}
-
-class Comment {
-  constructor(authorName, content, articleId, replyingToId) {
-    this.authorName = authorName;
-    this.content = content;
-    this.articleId = articleId;
-    this.replyingToId = replyingToId;
-    this.responses = new Map();
-    this.score = 0;
-  }
-
-  /**
-   *
-   * @param {Map[string, Comment]} messageMap
-   * @returns This map as json encoded string
-   */
-  static mapToJson(messageMap) {
-    let ret = Object.create(null);
-    for (const [k, v] of messageMap) {
-      ret[k] = v;
-    }
-    return ret;
-  }
-
-  toJSON() {
-    return {
-      authorName: this.authorName,
-      content: this.content,
-      articleId: this.articleId,
-      replyingToId: this.replyingToId,
-      responses: Comment.mapToJson(this.responses),
-      score: this.score,
-    };
-  }
-}
 
 /**
  * Variables
