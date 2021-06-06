@@ -1,4 +1,5 @@
-const Article = require('./Article')
+const Article = require("./Article");
+const Comment = require("./Comment");
 
 class Topic {
   constructor(sourceObject) {

@@ -1,5 +1,6 @@
 const socket = io();
-import Topic from "./modules/Topic.js"
+import Topic from "./modules/Topic.js";
+import Constants from "./modules/Constants.js";
 
 let roomFocus = null;
 let inFocus = false;
@@ -13,28 +14,9 @@ function htmlDecode(value) {
  * Objects
  */
 
-
-
-
-// Status constants
-const STATUS_REJECTED = "STATUS_REJECTED";
-const STATUS_ACCEPETED = "STATUS_ACCEPETED";
-
-// Client side events
-const CLIENT_EVENT_REGISTER = "CLIENT_EVENT_REGISTER";
-const CLIENT_EVENT_GET_TOPIC = "CLIENT_EVENT_GET_TOPIC";
-const CLIENT_EVENT_COMMENT = "CLIENT_EVENT_COMMENT";
-const CLIENT_EVENT_UPVOTE = "CLIENT_EVENT_UPVOTE";
-const CLIENT_EVENT_DOWNVOTE = "CLIENT_EVENT_DOWNVOTE";
-
-// Server side evetns
-const SERVER_EVENT_COMMENT = "SERVER_EVENT_COMMENT";
-const SERVER_EVENT_UPVOTE = "SERVER_EVENT_UPVOTE";
-const SERVER_EVENT_DOWNVOTE = "SERVER_EVENT_DOWNVOTE";
-
 function register(userName) {
-  socket.emit(CLIENT_EVENT_REGISTER, userName, (response) => {
-    if (response.status === STATUS_ACCEPETED) {
+  socket.emit(Constants.CLIENT_EVENT_REGISTER, userName, (response) => {
+    if (response.status === Constants.STATUS_ACCEPETED) {
       //TODO
     } else {
       // TODO
@@ -44,7 +26,7 @@ function register(userName) {
 
 function message(content, articleId, replyingToId) {
   socket.emit(
-    CLIENT_EVENT_COMMENT,
+    Constants.CLIENT_EVENT_COMMENT,
     content,
     articleId,
     replyingToId,
@@ -55,11 +37,11 @@ function message(content, articleId, replyingToId) {
 }
 
 function upvote(commentId) {
-  socket.emit(CLIENT_EVENT_UPVOTE, commentId);
+  socket.emit(Constants.CLIENT_EVENT_UPVOTE, commentId);
 }
 
 function downvote(commentId) {
-  socket.emit(CLIENT_EVENT_DOWNVOTE, commentId);
+  socket.emit(Constants.CLIENT_EVENT_DOWNVOTE, commentId);
 }
 
 function getCommentHTML(
@@ -126,7 +108,7 @@ function handleServerSideComments(topic, topicId) {
 }
 
 function focusTopic(topicId) {
-  socket.emit(CLIENT_EVENT_GET_TOPIC, topicId, (response) => {
+  socket.emit(Constants.CLIENT_EVENT_GET_TOPIC, topicId, (response) => {
     const topic = new Topic(JSON.parse(response.topic));
 
     const upvotedCommentIds = JSON.parse(response.upvotedCommentIds);
@@ -178,7 +160,7 @@ function handleFocus(topicHTML, topic, upvotedCommentIds, downvotedCommentIds) {
 
 $(document).ready(() => {
   socket.on(
-    SERVER_EVENT_COMMENT,
+    Constants.SERVER_EVENT_COMMENT,
     (senderId, messageId, content, articleId, replyingToId, time) => {
       if (replyingToId) {
         //TODO handle if response message
@@ -197,11 +179,11 @@ $(document).ready(() => {
     }
   );
 
-  socket.on(SERVER_EVENT_UPVOTE, (commentId) => {
+  socket.on(Constants.SERVER_EVENT_UPVOTE, (commentId) => {
     // TODO
   });
 
-  socket.on(SERVER_EVENT_DOWNVOTE, (commentId) => {
+  socket.on(Constants.SERVER_EVENT_DOWNVOTE, (commentId) => {
     // TODO
   });
 
