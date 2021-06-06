@@ -1,5 +1,5 @@
-import Article from "./Article.js"
-import Comment from "./Comment.js"
+import Article from "./Article.js";
+import Comment from "./Comment.js";
 class Topic {
   constructor(sourceObject) {
     this.id = sourceObject.id;
@@ -16,10 +16,6 @@ class Topic {
     for (const key of Object.keys(parsedComments)) {
       this.comments.set(key, new Comment(parsedComments[key]));
     }
-
-    // for (let k of Object.keys(sourceObject.comments)) {
-    // 	this.comments.set(k, new Comment(sourceObject.comments[k]));
-    // }
   }
   toJSON() {
     return {
@@ -31,4 +27,4 @@ class Topic {
   }
 }
 
-export default Topic
+export default Topic;

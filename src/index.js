@@ -1,17 +1,19 @@
 /**
  * Modules
  */
+require("dotenv").config();
 const express = require("express");
 const path = require("path");
 const socketio = require("socket.io");
 const http = require("http");
 const uuid = require("uuid");
-// const run = require("./api/dataprocess");
+const run = require("./api/dataprocess");
 const ejs = require("ejs");
 const date = require("date-and-time");
-const Topic = require('./lib/Topic')
-const Comment = require('./lib/Comment')
-const constants = require('./lib/constants')
+const Topic = require("./lib/Topic");
+const Comment = require("./lib/Comment");
+const constants = require("./lib/constants");
+const isDev = process.env.IS_DEV;
 
 function getTopicHTML(topic) {
   let html;
@@ -34,9 +36,6 @@ function getTopicHTML(topic) {
  * Classes
  */
 
-
-
-
 /**
  * Variables
  */
@@ -49,11 +48,16 @@ const io = socketio(server, {
   },
 });
 
-// Our vars
-//  let topicArticleData = run();
-const topicArticleData = require("./results");
-const users = new Map(); // Map[userId, userName]
-const topics = new Map(); // Map[topicId, Topic]
+// If we are running the code as devs, use a cacched result, otherwise
+// get actual news results in production
+let topicArticleData;
+if (isDev) {
+  topicArticleData = run();
+} else {
+  topicArticleData = require("./results");
+}
+const users = new Map();
+const topics = new Map();
 topicArticleData.forEach((topic) =>
   topics.set(String(topic.id), new Topic(topic))
 );
@@ -71,9 +75,10 @@ app.get("/", (req, res) => {
   res.render("landing", { articles: topicArticleData });
 });
 
-app.get("/main", (req,res)=>{
+app.get("/main", (req, res) => {
   res.render("index", { articles: topicArticleData });
-})
+});
+
 /**
  * Socket
  */
@@ -154,7 +159,6 @@ io.on("connection", (socket) => {
 
   // User upvotes a comment
   // Assumes client enforces user not bieng able to upvote their own comment
-
   socket.on(constants.CLIENT_EVENT_UPVOTE, (commentId) => {
     const topicInFocus = topics.get(topicInFocusId);
     if (!topicInFocus.upvotedCommentIds.has(commentId)) {

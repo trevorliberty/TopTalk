@@ -16,7 +16,7 @@ function htmlDecode(value) {
 
 function register() {
   const urlParams = new URLSearchParams(window.location.search);
-  const userName = urlParams.get('screenname')
+  const userName = urlParams.get("screenname");
   socket.emit(Constants.CLIENT_EVENT_REGISTER, userName, (response) => {
     if (response.status === Constants.STATUS_ACCEPETED) {
       //TODO
@@ -89,12 +89,7 @@ function handleCommentEmission(
     $(`#messageArea_${articleId}`)[0].scrollHeight
   );
 }
-/*
-		this.authorName = sourceObject.authorName;
-		this.content = sourceObject.content;
-		this.articleId = sourceObject.articleId;
-		this.replyingToId = sourceObject.replyingToId;
-*/
+
 function handleServerSideComments(topic, topicId) {
   for (const [k, value] of topic.comments.entries()) {
     //TODO

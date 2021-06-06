@@ -3,12 +3,13 @@ const fetch = require("node-fetch");
 const NewsAPI = require("newsapi");
 
 const newsapi = new NewsAPI(process.env.API_KEY);
-const rapidApiKey = process.env.DIFFBOT_TOKEN;
+const rapidApiKey = process.env.RAPID_TOKEN;
+const diffBotApiKey = process.env.DIFFBOT_TOKEN;
 
 //API is used to get the contents of an article as html for prenestation in TopTalk
 const getHTML = async (url) => {
   let response = await fetch(
-    `https://diffbot-diffbot.p.rapidapi.com/v2/article?token=9216af864a99daaa340cf5bba2ddfc5c&url=${url}&timeout=15000&fields=html`,
+    `https://diffbot-diffbot.p.rapidapi.com/v2/article?token=${diffBotApiKey}&url=${url}&timeout=15000&fields=html`,
     {
       method: "GET",
       headers: {
