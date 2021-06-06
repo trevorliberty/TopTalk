@@ -12,7 +12,7 @@ function htmlDecode(value) {
 
 function register() {
   const urlParams = new URLSearchParams(window.location.search);
-  const userName = urlParams.get('screenname')
+  const userName = urlParams.get("screenname");
   socket.emit(Constants.CLIENT_EVENT_REGISTER, userName, (response) => {
   });
 }
@@ -73,6 +73,7 @@ function handleCommentEmission(
     $(`#messageArea_${articleId}`)[0].scrollHeight
   );
 }
+
 function handleServerSideComments(topic, topicId) {
   for (const [k, value] of topic.comments.entries()) {
     handleCommentEmission(
