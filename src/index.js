@@ -11,6 +11,7 @@ const ejs = require("ejs");
 const date = require("date-and-time");
 const Topic = require('./lib/Topic')
 const Comment = require('./lib/Comment')
+const constants = require('./lib/constants')
 
 function getTopicHTML(topic) {
   let html;
@@ -57,22 +58,6 @@ topicArticleData.forEach((topic) =>
   topics.set(String(topic.id), new Topic(topic))
 );
 
-// Status constants
-const STATUS_REJECTED = "STATUS_REJECTED";
-const STATUS_ACCEPETED = "STATUS_ACCEPETED";
-
-// Client side events
-const CLIENT_EVENT_REGISTER = "CLIENT_EVENT_REGISTER";
-const CLIENT_EVENT_GET_TOPIC = "CLIENT_EVENT_GET_TOPIC";
-const CLIENT_EVENT_COMMENT = "CLIENT_EVENT_COMMENT";
-const CLIENT_EVENT_UPVOTE = "CLIENT_EVENT_UPVOTE";
-const CLIENT_EVENT_DOWNVOTE = "CLIENT_EVENT_DOWNVOTE";
-
-// Server side evetns
-const SERVER_EVENT_COMMENT = "SERVER_EVENT_COMMENT";
-const SERVER_EVENT_UPVOTE = "SERVER_EVENT_UPVOTE";
-const SERVER_EVENT_DOWNVOTE = "SERVER_EVENT_DOWNVOTE";
-
 /**
  * Configurations
  */
@@ -103,15 +88,15 @@ io.on("connection", (socket) => {
   });
 
   // User registers with a username
-  socket.on(CLIENT_EVENT_REGISTER, (requestedName, callback) => {
+  socket.on(constants.CLIENT_EVENT_REGISTER, (requestedName, callback) => {
     let callbackStatus = "";
 
     if (Array.from(users.values()).includes(requestedName)) {
-      callbackStatus = STATUS_REJECTED;
+      callbackStatus = constants.STATUS_REJECTED;
     } else {
       this.userName = requestedName;
       users.set(socket.id, requestedName);
-      callbackStatus = STATUS_ACCEPETED;
+      callbackStatus = constants.STATUS_ACCEPETED;
     }
 
     callback({
@@ -120,7 +105,7 @@ io.on("connection", (socket) => {
   });
 
   // User puts topic in focus
-  socket.on(CLIENT_EVENT_GET_TOPIC, (topicId, callback) => {
+  socket.on(constants.CLIENT_EVENT_GET_TOPIC, (topicId, callback) => {
     if (topicInFocusId) {
       socket.leave(topicInFocusId);
     }
@@ -136,7 +121,7 @@ io.on("connection", (socket) => {
 
   // User makes a comment
   socket.on(
-    CLIENT_EVENT_COMMENT,
+    constants.CLIENT_EVENT_COMMENT,
     (content, articleId, replyingToId, callback) => {
       const newCommentId = uuid.v4();
       const commentToAdd = new Comment(
@@ -150,7 +135,7 @@ io.on("connection", (socket) => {
       const now = new Date();
       const time = date.format(now, "h:mm:ss A");
       io.to(topicInFocusId).emit(
-        SERVER_EVENT_COMMENT,
+        constants.SERVER_EVENT_COMMENT,
         socket.id,
         newCommentId,
         content,
@@ -167,27 +152,27 @@ io.on("connection", (socket) => {
   // User upvotes a comment
   // Assumes client enforces user not bieng able to upvote their own comment
 
-  socket.on(CLIENT_EVENT_UPVOTE, (commentId) => {
+  socket.on(constants.CLIENT_EVENT_UPVOTE, (commentId) => {
     const topicInFocus = topics.get(topicInFocusId);
     if (!topicInFocus.upvotedCommentIds.has(commentId)) {
       topicInFocus.downvotedCommentIds.delete(commentId);
       topicInFocus.upvotedCommentIds.add(commentId);
       topicInFocus.socket
         .to(topicInFocusId)
-        .emit(SERVER_EVENT_UPVOTE, commentId);
+        .emit(constants.SERVER_EVENT_UPVOTE, commentId);
     }
   });
 
   // User upvotes a comment
   // Assumes client enforces user not bieng able to upvote their own comment
-  socket.on(CLIENT_EVENT_DOWNVOTE, (commentId) => {
+  socket.on(constants.CLIENT_EVENT_DOWNVOTE, (commentId) => {
     const topicInFocus = topics.get(topicInFocusId);
     if (!topicInFocus.downvotedCommentIds.has(commentId)) {
       topicInFocus.upvotedCommentIds.delete(commentId);
       topicInFocus.downvotedCommentIds.add(commentId);
       topicInFocus.socket
         .to(topicInFocusId)
-        .emit(SERVER_EVENT_DOWNVOTE, commentId);
+        .emit(constants.SERVER_EVENT_DOWNVOTE, commentId);
     }
   });
 });
