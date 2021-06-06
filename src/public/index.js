@@ -3,26 +3,17 @@ import Topic from "./modules/Topic.js";
 import Constants from "./modules/Constants.js";
 
 let roomFocus = null;
-let inFocus = false;
 let upChevron = `<i class="fas fa-chevron-up fa-2x" style="color: #7386d5"> </i>`;
 let downChevron = `<i class="fas fa-chevron-down fa-2x" style="color: #7386d5"> </i>`;
 
 function htmlDecode(value) {
   return $("<textarea/>").html(value).text();
 }
-/**
- * Objects
- */
 
 function register() {
   const urlParams = new URLSearchParams(window.location.search);
   const userName = urlParams.get("screenname");
   socket.emit(Constants.CLIENT_EVENT_REGISTER, userName, (response) => {
-    if (response.status === Constants.STATUS_ACCEPETED) {
-      //TODO
-    } else {
-      // TODO
-    }
   });
 }
 
@@ -38,13 +29,6 @@ function message(content, articleId, replyingToId) {
   );
 }
 
-function upvote(commentId) {
-  socket.emit(Constants.CLIENT_EVENT_UPVOTE, commentId);
-}
-
-function downvote(commentId) {
-  socket.emit(Constants.CLIENT_EVENT_DOWNVOTE, commentId);
-}
 
 function getCommentHTML(
   senderId,
@@ -92,7 +76,6 @@ function handleCommentEmission(
 
 function handleServerSideComments(topic, topicId) {
   for (const [k, value] of topic.comments.entries()) {
-    //TODO
     handleCommentEmission(
       value["authorName"],
       topicId,
@@ -153,18 +136,12 @@ function handleFocus(topicHTML, topic, upvotedCommentIds, downvotedCommentIds) {
     }
   });
 }
-//io.to(topicInFocusId).emit(SERVER_EVENT_COMMENT, socket.id, newCommentId, content, topicInFocusId, replyingToId,time);
 
 $(document).ready(() => {
   register();
   socket.on(
     Constants.SERVER_EVENT_COMMENT,
     (senderId, messageId, content, articleId, replyingToId, time) => {
-      if (replyingToId) {
-        //TODO handle if response message
-      } else {
-        //TODO handle original comment
-      }
 
       handleCommentEmission(
         senderId,
@@ -177,17 +154,9 @@ $(document).ready(() => {
     }
   );
 
-  socket.on(Constants.SERVER_EVENT_UPVOTE, (commentId) => {
-    // TODO
-  });
-
-  socket.on(Constants.SERVER_EVENT_DOWNVOTE, (commentId) => {
-    // TODO
-  });
 
   $("#sidebarCollapse").on("click", function () {
     $("#content").width("100%");
-    // $('#sidebar').toggleClass('active');
     $("#sidebar").css("margin-left", "-30vw");
 
     $("#sidebarCollapse_").css("display", "block");
@@ -197,13 +166,11 @@ $(document).ready(() => {
   });
   $("#sidebarCollapse_").on("click", function () {
     $("#content").width("70vw");
-    // $('#sidebar').toggleClass('active');
     $("#sidebarCollapse_").css("display", "none");
     $("#sidebar").css("margin-left", 0);
   });
 
   $('[id^="show_"]').click(function (e) {
-    // do something
     let doc = $(this)[0].id.replace("show", "#article");
     $("#active_article").html(htmlDecode($(doc)[0].innerHTML));
   });
