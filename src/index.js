@@ -30,17 +30,9 @@ function getTopicHTML(topic) {
 
   return html;
 }
-/**
- * Classes
- */
 
 
 
-
-/**
- * Variables
- */
-// Exteranal vars
 const app = express();
 const server = http.createServer(app);
 const io = socketio(server, {
@@ -180,9 +172,6 @@ io.on("connection", (socket) => {
   });
 });
 
-/**
- * Server
- */
 server.listen(3333, () => {
   console.log(`listening on port`);
 });
