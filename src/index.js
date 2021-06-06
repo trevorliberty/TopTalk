@@ -15,7 +15,7 @@ const Comment = require("./lib/Comment");
 const constants = require("./lib/constants");
 const isDev = process.env.IS_DEV;
 
-function getTopicHTML(topic) {
+const getTopicHTML = (topic) => {
   let html;
   topic = topic.toJSON();
   topic.relatedArticles = JSON.parse(topic.relatedArticles);

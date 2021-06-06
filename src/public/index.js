@@ -6,18 +6,18 @@ let roomFocus = null;
 let upChevron = `<i class="fas fa-chevron-up fa-2x" style="color: #7386d5"> </i>`;
 let downChevron = `<i class="fas fa-chevron-down fa-2x" style="color: #7386d5"> </i>`;
 
-function htmlDecode(value) {
+const htmlDecode = (value) => {
   return $("<textarea/>").html(value).text();
 }
 
-function register() {
+const register = () => {
   const urlParams = new URLSearchParams(window.location.search);
   const userName = urlParams.get("screenname");
   socket.emit(Constants.CLIENT_EVENT_REGISTER, userName, (response) => {
   });
 }
 
-function message(content, articleId, replyingToId) {
+const message = (content, articleId, replyingToId) => {
   socket.emit(
     Constants.CLIENT_EVENT_COMMENT,
     content,
@@ -30,14 +30,14 @@ function message(content, articleId, replyingToId) {
 }
 
 
-function getCommentHTML(
+const getCommentHTML = (
   senderId,
   articleId,
   content,
   messageId,
   replyingToId,
   time
-) {
+) => {
   return `
 		<div class="card mt-5">
 		<div class="card-header">${senderId}</div>
@@ -52,14 +52,14 @@ function getCommentHTML(
 		</div>
 	`;
 }
-function handleCommentEmission(
+const handleCommentEmission = (
   senderId,
   articleId,
   content,
   messageId,
   replyingToId,
   time
-) {
+) => {
   let html = getCommentHTML(
     senderId,
     articleId,
@@ -73,8 +73,7 @@ function handleCommentEmission(
     $(`#messageArea_${articleId}`)[0].scrollHeight
   );
 }
-
-function handleServerSideComments(topic, topicId) {
+const handleServerSideComments = (topic, topicId) => {
   for (const [k, value] of topic.comments.entries()) {
     handleCommentEmission(
       value["authorName"],
@@ -87,7 +86,7 @@ function handleServerSideComments(topic, topicId) {
   }
 }
 
-function focusTopic(topicId) {
+const focusTopic = (topicId) => {
   socket.emit(Constants.CLIENT_EVENT_GET_TOPIC, topicId, (response) => {
     const topic = new Topic(JSON.parse(response.topic));
 
@@ -99,7 +98,7 @@ function focusTopic(topicId) {
   });
 }
 
-function handleFocus(topicHTML, topic, upvotedCommentIds, downvotedCommentIds) {
+const handleFocus = (topicHTML, topic, upvotedCommentIds, downvotedCommentIds) => {
   $("#topicInFocus").html(topicHTML);
   $("#topperButton").hide();
   $("#messageJumper").hide();
