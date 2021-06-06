@@ -14,7 +14,9 @@ function htmlDecode(value) {
  * Objects
  */
 
-function register(userName) {
+function register() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const userName = urlParams.get('screenname')
   socket.emit(Constants.CLIENT_EVENT_REGISTER, userName, (response) => {
     if (response.status === Constants.STATUS_ACCEPETED) {
       //TODO
@@ -54,7 +56,7 @@ function getCommentHTML(
 ) {
   return `
 		<div class="card mt-5">
-		<div class="card-header">Screenname</div>
+		<div class="card-header">${senderId}</div>
 		<div class="card-body">
 			<blockquote class="blockquote mb-0">
 				<p>${content}</p>
@@ -97,7 +99,7 @@ function handleServerSideComments(topic, topicId) {
   for (const [k, value] of topic.comments.entries()) {
     //TODO
     handleCommentEmission(
-      value["author"],
+      value["authorName"],
       topicId,
       value["content"],
       value["articleId"],
@@ -159,6 +161,7 @@ function handleFocus(topicHTML, topic, upvotedCommentIds, downvotedCommentIds) {
 //io.to(topicInFocusId).emit(SERVER_EVENT_COMMENT, socket.id, newCommentId, content, topicInFocusId, replyingToId,time);
 
 $(document).ready(() => {
+  register();
   socket.on(
     Constants.SERVER_EVENT_COMMENT,
     (senderId, messageId, content, articleId, replyingToId, time) => {

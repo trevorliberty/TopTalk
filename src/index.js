@@ -68,9 +68,12 @@ app.use(express.static(path.join(__dirname, "/public")));
  * Routes
  */
 app.get("/", (req, res) => {
-  res.render("index", { articles: topicArticleData });
+  res.render("landing", { articles: topicArticleData });
 });
 
+app.get("/main", (req,res)=>{
+  res.render("index", { articles: topicArticleData });
+})
 /**
  * Socket
  */
@@ -125,7 +128,7 @@ io.on("connection", (socket) => {
     (content, articleId, replyingToId, callback) => {
       const newCommentId = uuid.v4();
       const commentToAdd = new Comment(
-        userName,
+        this.userName,
         content,
         articleId,
         replyingToId
@@ -136,7 +139,7 @@ io.on("connection", (socket) => {
       const time = date.format(now, "h:mm:ss A");
       io.to(topicInFocusId).emit(
         constants.SERVER_EVENT_COMMENT,
-        socket.id,
+        users.get(socket.id),
         newCommentId,
         content,
         topicInFocusId,
