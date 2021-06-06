@@ -1,4 +1,5 @@
 const socket = io();
+import Topic from "./modules/Topic.js"
 
 let roomFocus = null;
 let inFocus = false;
@@ -12,89 +13,8 @@ function htmlDecode(value) {
  * Objects
  */
 
-class Article {
-  // constructor(sourceId, sourceName, authorName, title, description, url, urlToImage, content) {
-  constructor(sourceObject) {
-    this.id = sourceObject.id;
-    this.htmlBody = sourceObject.htmlBody;
-    this.sourceId = sourceObject.source.id;
-    this.sourceName = sourceObject.source.name;
-    this.author = sourceObject.name;
-    this.title = sourceObject.title;
-    this.description = sourceObject.description;
-    this.url = sourceObject.url;
-    this.urlToImage = sourceObject.urlToImage;
-    this.publishedAt = sourceObject.publishedAt;
-    this.content = sourceObject.content;
-    this.weight = sourceObject.wieght;
-  }
-}
 
-class Topic {
-  constructor(sourceObject) {
-    this.id = sourceObject.id;
-    this.sourceArticle = new Article(JSON.parse(sourceObject.source));
-    this.relatedArticles = [];
 
-    JSON.parse(sourceObject.relatedArticles).forEach((relatedArticle) =>
-      this.relatedArticles.push(new Article(relatedArticle))
-    );
-
-    this.comments = new Map();
-
-    let parsedComments = JSON.parse(sourceObject.comments);
-    for (const key of Object.keys(parsedComments)) {
-      this.comments.set(key, new Comment(parsedComments[key]));
-    }
-
-    // for (let k of Object.keys(sourceObject.comments)) {
-    // 	this.comments.set(k, new Comment(sourceObject.comments[k]));
-    // }
-  }
-  toJSON() {
-    return {
-      id: this.id,
-      source: JSON.parse(this.sourceArticle),
-      relatedArticles: JSON.stringify(this.relatedArticles),
-      comments: Comment.mapToJson(this.comments),
-    };
-  }
-}
-
-class Comment {
-  constructor(sourceObject) {
-    this.authorName = sourceObject.authorName;
-    this.content = sourceObject.content;
-    this.articleId = sourceObject.articleId;
-    this.replyingToId = sourceObject.replyingToId;
-    this.responses = new Map();
-    if (sourceObject.responses) {
-      for (let k of Object.keys(sourceObject.responses)) {
-        this.responses.set(k, new Comment(sourceObject.responses[k]));
-      }
-    }
-    this.score = sourceObject.score;
-  }
-
-  static mapToJson(messageMap) {
-    let ret = Object.create(null);
-    for (const [k, v] of messageMap) {
-      ret[k] = v;
-    }
-    return ret;
-  }
-
-  toJSON() {
-    return {
-      authorName: this.authorName,
-      content: this.content,
-      articleId: this.articleId,
-      replyingToId: this.replyingToId,
-      responses: Comment.mapToJson(this.responses),
-      score: this.score,
-    };
-  }
-}
 
 // Status constants
 const STATUS_REJECTED = "STATUS_REJECTED";
